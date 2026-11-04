@@ -1,0 +1,9 @@
+{
+  "name": "ai-native-code-bench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reproducible evaluation of AI-native code representations",
+  "devDependencies": {
+    "edict-lang": "1.23.2"
+  }
+}
