@@ -1,11 +1,14 @@
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
 
 from bench.core import json_object, python_source, visible_result
 from bench.edict import EdictSession, decode_tool_result, nested_value, normalize_duplicate_ids
 from bench.__main__ import edict_prompt, edict_repair_prompt, run_edict
 from bench.core import Generation
+from bench.repro import diagnostic_variants, load_ast, run_diagnostics
 
 
 class CoreTests(unittest.TestCase):
@@ -140,6 +143,50 @@ class CoreTests(unittest.TestCase):
                   execute=False, record=record)
         self.assertEqual(record["artifact"], {"kind": "module"})
         self.assertEqual(record["prompt_tokens"], 10)
+
+    def test_wasm_repro_fixture_preserved_across_variants(self):
+        fixture = Path("fixtures/edict/even-sum-20-wasm-invalid.json")
+        original = load_ast(fixture)
+        variants = dict(diagnostic_variants(original))
+        self.assertEqual(set(variants), {"original", "no_string_expression", "no_block",
+                                         "no_block_or_string"})
+        self.assertEqual(variants["original"], original)
+        self.assertEqual(variants["no_string_expression"]["definitions"][0]["body"][2]["kind"],
+                         "block")
+        self.assertNotIn("block", [node["kind"] for node in
+                                   variants["no_block"]["definitions"][0]["body"]])
+        self.assertEqual(original["definitions"][0]["body"][3]["args"][0]["kind"], "binop")
+        self.assertEqual(variants["no_string_expression"]["definitions"][0]["body"][3]["args"][0]["kind"],
+                         "literal")
+
+    def test_load_most_recent_compiled_record_from_jsonl(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "smoke.jsonl"
+            records = [
+                {"mode": "edict", "task": "demo", "compiled": True,
+                 "artifact": {"kind": "module", "id": "a"}},
+                {"mode": "edict", "task": "other", "compiled": True,
+                 "artifact": {"kind": "module", "id": "b"}},
+                {"mode": "edict", "task": "demo", "compiled": True,
+                 "artifact": {"kind": "module", "id": "c"}},
+            ]
+            path.write_text("\n".join(json.dumps(record) for record in records), encoding="utf-8")
+            self.assertEqual(load_ast(path, "demo")["id"], "c")
+            with self.assertRaisesRegex(ValueError, "No compiled Edict"):
+                load_ast(path, "absent")
+
+    def test_repro_separates_compile_and_wasm_errors(self):
+        ast = load_ast(Path("fixtures/edict/even-sum-20-wasm-invalid.json"))
+        session = MagicMock()
+        session.compile.side_effect = [
+            {"wasm": "AAAB"}, RuntimeError("invalid_ast"), {"wasm": "AAAB"}, {"wasm": "AAAB"}
+        ]
+        session.run.side_effect = [RuntimeError("i32.store"), "still runs", "probe"]
+        result = run_diagnostics(ast, session)
+        self.assertEqual([r["stage"] for r in result],
+                         ["wasm_execution", "compile", "ok", "ok"])
+        self.assertEqual(session.compile.call_count, 4)
+        self.assertIn("i32.store", result[0]["error"])
 
 
 if __name__ == "__main__":
