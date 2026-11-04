@@ -9,6 +9,7 @@ from bench.edict import EdictSession, decode_tool_result, nested_value, normaliz
 from bench.__main__ import edict_prompt, edict_repair_prompt, run_edict
 from bench.core import Generation
 from bench.repro import diagnostic_variants, load_ast, run_diagnostics
+from bench.prompting import COMPACT_GUIDE, official_context
 
 
 class CoreTests(unittest.TestCase):
@@ -82,6 +83,48 @@ class CoreTests(unittest.TestCase):
                                      '{"error":"duplicate_id"}')
         self.assertIn("duplicate_id", prompt)
         self.assertIn("Previous AST", prompt)
+
+    def test_edict_prompt_profiles_keep_original_baseline(self):
+        baseline = edict_prompt("Compute 2 + 3")
+        compact = edict_prompt("Compute 2 + 3", variant="compact")
+        official = edict_prompt("Compute 2 + 3", variant="official",
+                                context="MCP schema: demo")
+        self.assertNotIn("Compact Edict authoring guide", baseline)
+        self.assertIn("toString", compact)
+        self.assertIn("MCP schema: demo", official)
+        self.assertIn("Compute 2 + 3", baseline)
+        repaired = edict_repair_prompt("Compute 2 + 3", "{}", "arity_mismatch",
+                                       variant="official", context="MCP schema: demo")
+        self.assertIn("MCP schema: demo", repaired)
+
+    def test_official_documentation_uses_installed_mcp_tools(self):
+        edict = MagicMock()
+        edict.call.side_effect = [
+            {"structuredContent": {"schema": "x" * 4000}},
+            {"structuredContent": {"examples": [{"kind": "module", "id": "demo"}]}},
+        ]
+        context = official_context(edict, char_budget=2000)
+        self.assertEqual([call.args for call in edict.call.call_args_list],
+                         [("edict_schema", {}), ("edict_examples", {})])
+        self.assertIn("schema", context.text)
+        self.assertIn("examples", context.text)
+        self.assertEqual(len(context.source_sha256), 64)
+        self.assertGreater(context.source_chars, context.included_chars)
+
+    def test_edict_profile_and_prompt_costs_are_recorded(self):
+        with patch("bench.__main__.EdictSession") as session_cls, patch("bench.__main__.generate") as generate_mock:
+            generate_mock.return_value = Generation('{"kind":"module","id":"a"}', 10, 20, 30)
+            session = session_cls.return_value.__enter__.return_value
+            session.compile.return_value = {"wasm": "AAAB"}
+            session.run.return_value = "5"
+            record = {}
+            run_edict(task={"prompt": "Compute 2+3", "expected_stdout": "5"},
+                      endpoint="http://localhost:11434", model="test", max_repairs=0,
+                      execute=True, record=record, prompt_variant="compact")
+        self.assertTrue(record["passed"])
+        self.assertEqual(record["edict_prompt_variant"], "compact")
+        self.assertEqual(record["initial_prompt_chars"], record["attempts"][0]["input_prompt_chars"])
+        self.assertIn(COMPACT_GUIDE, generate_mock.call_args.kwargs["prompt"])
 
     @patch("bench.__main__.EdictSession")
     @patch("bench.__main__.generate")
