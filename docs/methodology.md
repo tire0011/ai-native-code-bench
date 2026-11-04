@@ -12,6 +12,13 @@
 - Edict retries a failed AST up to two times by default, passing structured
   compiler errors back to the model. Each attempt is logged and charged to
   the total token count. Set `--max-edict-repairs 0` to measure first attempts.
+- Because generated node IDs are metadata used for diagnostics and editing,
+  duplicate IDs are assigned unique deterministic replacements in a cloned AST
+  before compilation. `attempts[*].raw_response` and `normalized_ids` preserve
+  this intervention separately from what the model actually generated.
+- WASM runtime/instantiation failures are classified as `wasm_execution` and
+  are **not** automatically repaired by the model; these need isolated compiler
+  reproductions and may indicate codegen defects.
 - Both modes are scored on the same expected output when integration succeeds.
 - Both modes are scored on the same expected output when integration succeeds,
   but only Edict has automatic repair in the current harness. This is still
