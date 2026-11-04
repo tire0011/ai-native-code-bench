@@ -19,11 +19,19 @@
 - WASM runtime/instantiation failures are classified as `wasm_execution` and
   are **not** automatically repaired by the model; these need isolated compiler
   reproductions and may indicate codegen defects.
-- Both modes are scored on the same expected output when integration succeeds.
 - Both modes are scored on the same expected output when integration succeeds,
   but only Edict has automatic repair in the current harness. This is still
   only a smoke test: do not publish an accuracy comparison from these tasks.
   Its goal is to expose integration problems.
+- The `--edict-prompt all` subexperiment compares the unchanged baseline, an
+  excerpt of the installed compiler's official schema/examples and a compact
+  hand-authored guide. All three use the same tasks, model, decoding and repair
+  budget. Record the profile and documentation SHA-256; count repeated context
+  tokens on each repair. The official excerpt has a fixed character budget.
+- Record `wall_duration_ns` separately from Ollama's `duration_ns`; the former
+  includes local compiler/runtime overhead, while the latter tracks the summed
+  model request durations. Documentation retrieval is a once-per-run setup
+  cost and is *not* included in per-task wall time.
 
 These tasks can be solved by printing constants: they are *not* a trustworthy
 measure of programming ability. Even identical fixed tasks are insufficient to
