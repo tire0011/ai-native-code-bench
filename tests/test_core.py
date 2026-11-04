@@ -1,9 +1,11 @@
 import json
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from bench.core import json_object, python_source, visible_result
 from bench.edict import EdictSession, decode_tool_result, nested_value
+from bench.__main__ import edict_prompt, edict_repair_prompt, run_edict
+from bench.core import Generation
 
 
 class CoreTests(unittest.TestCase):
@@ -45,6 +47,63 @@ class CoreTests(unittest.TestCase):
 
     def test_find_wasm(self):
         self.assertEqual(nested_value({"result": {"wasm": "AAAB"}}, ("wasm",)), "AAAB")
+
+    def test_edict_prompt_prohibits_invalid_nodes(self):
+        prompt = edict_prompt("Compute 2 + 3")
+        self.assertIn("Never reuse an id", prompt)
+        self.assertIn("they are NOT Edict expression node kinds", prompt)
+        self.assertIn('"op":"+"', prompt)
+
+    def test_repair_prompt_contains_compiler_feedback(self):
+        prompt = edict_repair_prompt("Compute 2 + 3", '{"kind":"module"}',
+                                     '{"error":"duplicate_id"}')
+        self.assertIn("duplicate_id", prompt)
+        self.assertIn("Previous AST", prompt)
+
+    @patch("bench.__main__.EdictSession")
+    @patch("bench.__main__.generate")
+    def test_run_edict_repairs_and_counts_all_tokens(self, generate_mock, session_cls):
+        generate_mock.side_effect = [
+            Generation('{"kind":"module","id":"a"}', 100, 30, 1000),
+            Generation('{"kind":"module","id":"b"}', 150, 40, 2000),
+        ]
+        session = session_cls.return_value.__enter__.return_value
+        session.compile.side_effect = [RuntimeError('{"error":"duplicate_id"}'), {"wasm": "AAAB"}]
+        session.run.return_value = "5"
+        record = {}
+        run_edict(task={"prompt": "Compute 2+3", "expected_stdout": "5"},
+                  endpoint="http://localhost:11434", model="test", max_repairs=2,
+                  execute=True, record=record)
+        self.assertTrue(record["passed"])
+        self.assertEqual(len(record["attempts"]), 2)
+        self.assertEqual(record["prompt_tokens"], 250)
+        self.assertEqual(record["completion_tokens"], 70)
+        self.assertEqual(record["duration_ns"], 3000)
+        self.assertIn("duplicate_id", record["attempts"][0]["error"])
+        self.assertIn("duplicate_id", generate_mock.call_args_list[1].kwargs["prompt"])
+
+    @patch("bench.__main__.EdictSession")
+    @patch("bench.__main__.generate")
+    def test_run_edict_zero_repairs(self, generate_mock, session_cls):
+        generate_mock.return_value = Generation('{"kind":"module"}', 100, 30, 1000)
+        session = session_cls.return_value.__enter__.return_value
+        session.compile.side_effect = RuntimeError("unknown_node_kind")
+        record = {}
+        run_edict(task={"prompt": "Compute 2+3", "expected_stdout": "5"},
+                  endpoint="http://localhost:11434", model="test", max_repairs=0,
+                  execute=True, record=record)
+        self.assertIn("unknown_node_kind", record["error"])
+        self.assertEqual(len(record["attempts"]), 1)
+
+    @patch("bench.__main__.generate")
+    def test_generation_only_avoids_compiler(self, generate_mock):
+        generate_mock.return_value = Generation('{"kind":"module"}', 10, 20, 30)
+        record = {}
+        run_edict(task={"prompt": "Compute 2+3", "expected_stdout": "5"},
+                  endpoint="http://localhost:11434", model="test", max_repairs=2,
+                  execute=False, record=record)
+        self.assertEqual(record["artifact"], {"kind": "module"})
+        self.assertEqual(record["prompt_tokens"], 10)
 
 
 if __name__ == "__main__":
