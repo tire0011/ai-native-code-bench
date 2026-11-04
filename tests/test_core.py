@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from bench.core import json_object, python_source, visible_result
-from bench.edict import EdictSession, decode_tool_result, nested_value
+from bench.edict import EdictSession, decode_tool_result, nested_value, normalize_duplicate_ids
 from bench.__main__ import edict_prompt, edict_repair_prompt, run_edict
 from bench.core import Generation
 
@@ -47,6 +47,26 @@ class CoreTests(unittest.TestCase):
 
     def test_find_wasm(self):
         self.assertEqual(nested_value({"result": {"wasm": "AAAB"}}, ("wasm",)), "AAAB")
+
+    def test_normalize_duplicate_node_ids_preserves_source(self):
+        original = {"kind": "module", "id": "same", "definitions": [
+            {"kind": "fn", "id": "same", "body": [
+                {"kind": "ident", "id": "same", "name": "n"},
+                {"kind": "ident", "id": "unique", "name": "n"}]}]}
+        normalized, changes = normalize_duplicate_ids(original)
+        self.assertEqual(original["definitions"][0]["id"], "same")
+        self.assertEqual(len(changes), 2)
+        self.assertEqual(normalized["definitions"][0]["id"], "same-dedup-1")
+        self.assertEqual(normalized["definitions"][0]["body"][0]["id"], "same-dedup-2")
+        self.assertEqual(normalized["definitions"][0]["body"][1]["id"], "unique")
+
+    def test_normalization_avoids_reserved_ids(self):
+        original = {"kind": "module", "id": "a", "definitions": [
+            {"kind": "fn", "id": "a", "body": [
+                {"kind": "literal", "id": "a-dedup-1", "value": 0}]}]}
+        normalized, changes = normalize_duplicate_ids(original)
+        self.assertEqual(changes[0]["new_id"], "a-dedup-2")
+        self.assertEqual(normalized["definitions"][0]["body"][0]["id"], "a-dedup-1")
 
     def test_edict_prompt_prohibits_invalid_nodes(self):
         prompt = edict_prompt("Compute 2 + 3")
@@ -94,6 +114,22 @@ class CoreTests(unittest.TestCase):
                   execute=True, record=record)
         self.assertIn("unknown_node_kind", record["error"])
         self.assertEqual(len(record["attempts"]), 1)
+
+    @patch("bench.__main__.EdictSession")
+    @patch("bench.__main__.generate")
+    def test_wasm_execution_failure_is_not_sent_to_llm_repair(self, generate_mock, session_cls):
+        generate_mock.return_value = Generation('{"kind":"module","id":"a"}', 10, 20, 30)
+        session = session_cls.return_value.__enter__.return_value
+        session.compile.return_value = {"wasm": "AAAB"}
+        session.run.side_effect = RuntimeError("WASM instantiation error: invalid i32.store")
+        record = {}
+        run_edict(task={"prompt": "Compute 2+3", "expected_stdout": "5"},
+                  endpoint="http://localhost:11434", model="test", max_repairs=2,
+                  execute=True, record=record)
+        self.assertEqual(generate_mock.call_count, 1)
+        self.assertEqual(record["failure_stage"], "wasm_execution")
+        self.assertTrue(record["compiled"])
+        self.assertNotIn("passed", record)
 
     @patch("bench.__main__.generate")
     def test_generation_only_avoids_compiler(self, generate_mock):
