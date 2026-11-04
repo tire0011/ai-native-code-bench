@@ -5,9 +5,59 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from copy import deepcopy
 from typing import Any
 
 from .core import visible_result
+
+
+def normalize_duplicate_ids(ast: dict) -> tuple[dict, list[dict[str, str]]]:
+    """Repair non-semantic duplicate AST node IDs, keeping original output intact.
+
+    IDs identify AST nodes for diagnostics and patches; distinct occurrences
+    must not reuse them. Record every intervention for research accounting.
+    """
+    normalized = deepcopy(ast)
+    reserved: set[str] = set()
+
+    def reserve(value: Any) -> None:
+        if isinstance(value, dict):
+            if "kind" in value and isinstance(value.get("id"), str):
+                reserved.add(value["id"])
+            for child in value.values():
+                reserve(child)
+        elif isinstance(value, list):
+            for child in value:
+                reserve(child)
+
+    reserve(normalized)
+    seen: set[str] = set()
+    changes: list[dict[str, str]] = []
+    counter = 0
+
+    def walk(value: Any, path: str) -> None:
+        nonlocal counter
+        if isinstance(value, dict):
+            if "kind" in value and isinstance(value.get("id"), str):
+                original = value["id"]
+                if original in seen:
+                    counter += 1
+                    replacement = f"{original}-dedup-{counter}"
+                    while replacement in reserved:
+                        counter += 1
+                        replacement = f"{original}-dedup-{counter}"
+                    value["id"] = replacement
+                    reserved.add(replacement)
+                    changes.append({"path": path, "old_id": original, "new_id": replacement})
+                seen.add(value["id"])
+            for key, child in value.items():
+                walk(child, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                walk(child, f"{path}[{index}]")
+
+    walk(normalized, "$")
+    return normalized, changes
 
 
 def decode_tool_result(result: dict) -> Any:
