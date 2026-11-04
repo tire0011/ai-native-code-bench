@@ -9,9 +9,14 @@
   are invoked. Incompatible tool schemas/results fail explicitly rather than
   silently counting a compile as a functional success.
 - Each response records model tokens, time, raw artifact, diagnostics and errors.
+- Edict retries a failed AST up to two times by default, passing structured
+  compiler errors back to the model. Each attempt is logged and charged to
+  the total token count. Set `--max-edict-repairs 0` to measure first attempts.
 - Both modes are scored on the same expected output when integration succeeds.
-  This is still only a smoke test: do not publish an accuracy comparison from
-  these tasks. Its goal is to expose integration problems.
+- Both modes are scored on the same expected output when integration succeeds,
+  but only Edict has automatic repair in the current harness. This is still
+  only a smoke test: do not publish an accuracy comparison from these tasks.
+  Its goal is to expose integration problems.
 
 These tasks can be solved by printing constants: they are *not* a trustworthy
 measure of programming ability. Even identical fixed tasks are insufficient to
