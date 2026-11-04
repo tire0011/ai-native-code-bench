@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .core import generate, json_object, python_source
-from .edict import EdictSession
+from .edict import EdictSession, normalize_duplicate_ids
 from .execution import run_python
 
 
@@ -91,20 +91,31 @@ def run_edict(*, task: dict, endpoint: str, model: str, max_repairs: int,
             record["artifact"] = response.text
             try:
                 ast = json_object(response.text)
+                ast, changes = normalize_duplicate_ids(ast)
+                attempt["normalized_ids"] = changes
                 record["artifact"] = ast
                 compiled = edict.compile(ast)
                 record["compiled"] = True
                 attempt["compiled"] = True
-                record["stdout"] = edict.run(compiled)
-                record["passed"] = record["stdout"] == task["expected_stdout"]
-                return
             except Exception as error:
                 details = f"{type(error).__name__}: {error}"
                 attempt["error"] = details
                 if attempt_index == max_repairs:
                     record["error"] = details
+                    record["failure_stage"] = "generation_or_compile"
                     return
                 prompt = edict_repair_prompt(task["prompt"], response.text, details)
+                continue
+
+            # WASM instantiation/validation errors belong to the execution
+            # stage. Do not ask the model to fix a compiler backend failure.
+            try:
+                record["stdout"] = edict.run(compiled)
+                record["passed"] = record["stdout"] == task["expected_stdout"]
+            except Exception as error:
+                record["error"] = f"{type(error).__name__}: {error}"
+                record["failure_stage"] = "wasm_execution"
+            return
 
 
 def main() -> None:
