@@ -58,6 +58,31 @@ the reported tokens and duration. For a first-attempt-only run, use:
 python -m bench --mode edict --max-edict-repairs 0
 ```
 
+### Compare Edict prompting approaches
+
+Run all three variants using the same Ollama model, tasks and decoding settings:
+
+```powershell
+python -m bench --mode edict --edict-prompt all --output results/edict-prompts.jsonl
+```
+
+| Profile | Context given to the model |
+| --- | --- |
+| `baseline` | Original short instructions and two small AST examples (unchanged) |
+| `official` | `edict_schema` and `edict_examples` fetched from the installed Edict MCP server, with a deterministic 8,000-character excerpt budget |
+| `compact` | Short Edict authoring guide covering JSON node shapes, `toString`, bindings and common false assumptions |
+
+Use `--edict-prompt official` or `--edict-prompt compact` for individual runs.
+`--edict-doc-chars 12000` changes the total excerpt budget, but can exceed
+the effective context budget of smaller Ollama models. The JSONL output records
+the profile, all model tokens including retries, model time, wall-clock time,
+and a SHA-256 of the full installed documentation sources for the `official`
+profile. The schema/examples are excerpted: this is *documentation-assisted
+prompting*, not a claim that the complete schema fits in the context window.
+
+These three tasks remain **integration smoke tests**, not reliable accuracy
+statistics. Compare both success and total token cost, not only pass rates.
+
 Repeated Edict AST node IDs are deterministically renamed before compilation;
 the original model output and each normalization are preserved in the JSONL
 record. This is a *tooling intervention*, not evidence that the model generated
