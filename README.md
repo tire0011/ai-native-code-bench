@@ -79,9 +79,33 @@ python -m bench --mode python
 
 Edict version `1.23.2` is pinned in `package.json`. Its MCP server is spawned
 locally via `npx --no-install edict-lang` and queried for tool input schemas.
-The first live Edict integration run still needs to be verified on a machine
-with the package installed; please open an issue with sanitized logs if you
-encounter a schema mismatch.
+An initial Windows/Ollama run confirmed `factorial-6` produces `720` after
+compiler-guided repair. Other smoke tasks still expose generation errors and
+an invalid WASM binary, so **Edict execution is not yet fully validated**.
+
+### Diagnose an Edict WASM failure
+
+The repository includes a sanitized, real model-generated AST that passed
+Edict 1.23.2 compilation but failed WASM validation (`i32.store` stack
+underflow). To replay it **without Ollama or another model call**:
+
+```powershell
+python -m bench.repro
+```
+
+Or replay the most recent compiled AST for a task in your own result file:
+
+```powershell
+python -m bench.repro --input results/smoke.jsonl --task even-sum-20
+```
+
+The diagnostic runs four independent cases: original AST, original without
+the string expression, without the block, and without either. It reports
+compiler errors separately from WASM execution errors, to help isolate an
+Edict code-generation problem. The modified variants **do not preserve program
+semantics** and their outputs must not be scored as task successes. The original
+AST itself contains an erroneous assumption that a `block` repeats like a loop;
+even valid WASM would not establish that the model solved the task.
 
 ## Safety
 
