@@ -50,6 +50,13 @@ python -m bench --model qwen2.5-coder:7b --mode both
 The runner uses Ollama at `http://127.0.0.1:11434`. Change the endpoint with
 `--endpoint` if necessary. JSONL results go to `results/smoke.jsonl` and include
 all generated artifacts and failures. The directory is gitignored by default.
+Edict defaults to two additional compiler-feedback repair attempts if the
+initial AST is invalid. Every generation (including failures) contributes to
+the reported tokens and duration. For a first-attempt-only run, use:
+
+```powershell
+python -m bench --mode edict --max-edict-repairs 0
+```
 
 For an initial generation-only test without executing any generated program:
 
