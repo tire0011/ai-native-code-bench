@@ -58,6 +58,12 @@ the reported tokens and duration. For a first-attempt-only run, use:
 python -m bench --mode edict --max-edict-repairs 0
 ```
 
+Repeated Edict AST node IDs are deterministically renamed before compilation;
+the original model output and each normalization are preserved in the JSONL
+record. This is a *tooling intervention*, not evidence that the model generated
+valid Edict unaided. WASM instantiation errors are reported separately rather
+than passed back to the model as if they were AST errors.
+
 For an initial generation-only test without executing any generated program:
 
 ```powershell
