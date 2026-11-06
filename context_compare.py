@@ -8,9 +8,9 @@ import subprocess
 import time
 
 from runner import FIXTURE, ROOT, log
-from scip_context import extract_symbol_context, occurrences
+from scip_context import extract_symbol_context, occurrences, index_diagnostics
 
-QUESTION = ("Find the file defining the C# type BaseEntity in ardalis/CleanArchitecture. "
+QUESTION = ("Find the file defining the C# type Contributor in ardalis/CleanArchitecture. "
             "Name the defining file and up to two files referencing it. "
             "Give repository-relative paths only; if uncertain say UNKNOWN.")
 
@@ -24,14 +24,15 @@ def compare(index_path, model="qwen2.5-coder:7b", timeout=150):
     local = ROOT / "local-results" / f"context-compare-{stamp}"
     local.mkdir(parents=True, exist_ok=True)
     try:
+        result["diagnostics"] = index_diagnostics(index_path)
         snippet, matches, symbols = extract_symbol_context(index_path, FIXTURE)
         result["index"] = {"matched_occurrences": matches, "symbols": symbols, "context_chars": len(snippet)}
         if not matches or not snippet:
-            result["status"] = "no_scip_symbols"
+            result["status"] = "no_scip_symbols_for_Contributor"
             return result
         all_hits = list(occurrences(index_path))
         selected = {sym for _, sym, _, defined in all_hits
-                    if defined and sym.endswith(("BaseEntity#", "BaseEntity."))}
+                    if defined and sym.endswith(("Contributor#", "Contributor."))}
         definitions = {path.replace("\\", "/") for path, sym, _, defined in all_hits
                        if defined and sym in selected}
         references = {path.replace("\\", "/") for path, sym, _, defined in all_hits
