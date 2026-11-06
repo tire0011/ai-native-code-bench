@@ -25,5 +25,6 @@ class RunnerTests(unittest.TestCase):
     def test_opencode_v2_flags(self):
         cmd = build_opencode_command('ollama/qwen2.5-coder:7b', 'hello')
         self.assertEqual(cmd[:2], ['run', '--standalone'])
+        self.assertEqual(cmd[cmd.index('--agent') + 1], 'build')
         self.assertNotIn('--archived', cmd)
         self.assertEqual(cmd[-1], 'hello')
