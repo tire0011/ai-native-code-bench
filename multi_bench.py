@@ -127,10 +127,15 @@ def run():
   report['arms'][arm]['directory']=str(folder.relative_to(ROOT));save()
  # round-robin prevents a successful arm receiving an unfair early stop for others
  round_number=max((len(a['rounds']) for a in report['arms'].values()),default=0)
- while not all(v['success'] for v in report['arms'].values()):
+ # Keep experiments bounded instead of repeating the same repairs indefinitely.
+ # A later explicit MULTI_RESUME run can continue from saved local checkpoints.
+ max_rounds=max(1,int(os.environ.get('MULTI_MAX_NEW_ROUNDS','4')))
+ stop_after=round_number+max_rounds
+ no_progress_limit=max(1,int(os.environ.get('MULTI_STALE_LIMIT','3')))
+ while round_number < stop_after and not all(v['success'] or v.get('stalled') for v in report['arms'].values()):
   round_number+=1
   for arm,info in report['arms'].items():
-   if info['success']:continue
+   if info['success'] or info.get('stalled'):continue
    folder=base/arm;checkout=folder/'fixture';log(f'Multi-file {arm}, round {round_number}')
    if round_number >= 3:
     import xml.etree.ElementTree as APIXML
@@ -227,14 +232,26 @@ def run():
    changed=subprocess.check_output(['git','diff','--name-only','--','src'],cwd=checkout,text=True).splitlines()
    success=check['exit_code']==0 and int(counts.get('passed',0))>=28 and len(changed)>=7
    candidate_passed=int(counts.get('passed',0))
+   prior_best=info.get('best_passed',0)
    rejected=candidate_passed<info.get('best_passed',0)
    if rejected:restore(checkout,folder/'best-production.zip')
    elif candidate_passed>info.get('best_passed',0):
     snapshot(checkout,folder/'best-production.zip');info['best_passed']=candidate_passed;info['best_feedback']=str(folder/f'round-{round_number}-tests.log')
-   info['rounds'].append({'rejected_regression':rejected,'editable_files':active_files,'round':round_number,'editor_exit':editor_exit,'editor_s':duration,'validation':check,'counts':counts,'changed_files':changed,'success':success});info['success']=success;save()
+   info['rounds'].append({'rejected_regression':rejected,'editable_files':active_files,'round':round_number,'editor_exit':editor_exit,'editor_s':duration,'validation':check,'counts':counts,'changed_files':changed,'success':success})
+   info['success']=success
+   if candidate_passed>prior_best:
+    info['stale_rounds']=0
+   else:
+    info['stale_rounds']=info.get('stale_rounds',0)+1
+   if not success and info['stale_rounds']>=no_progress_limit:
+    info['stalled']=True
+    log(f'{arm}: paused after {info["stale_rounds"]} rounds without test-score improvement')
+   save()
    log(f'{arm}: success={success}, changed_files={len(changed)}, passed={counts.get("passed",0)}')
    errors=(Path(info['best_feedback']) if rejected else folder/f'round-{round_number}-tests.log').read_text(encoding='utf-8').replace(str(checkout),'<FIXTURE>')
    (folder/'task.txt').write_text(TASK+'\nYour previous implementation failed independent checks. Fix your production code. Do not change tests. Compiler/test feedback:\n'+errors[-16000:],encoding='utf-8')
- report['status']='complete';save();log(f'Comparison completed: {out}')
+ report['status']='complete' if all(v['success'] for v in report['arms'].values()) else 'needs_review'
+ report['stop_reason']='all_passed' if report['status']=='complete' else ('no_progress' if all(v['success'] or v.get('stalled') for v in report['arms'].values()) else 'round_limit')
+ save();log(f'Comparison stopped ({report["stop_reason"]}): {out}')
 
 if __name__=='__main__':run()
