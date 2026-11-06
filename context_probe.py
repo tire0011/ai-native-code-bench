@@ -15,7 +15,7 @@ from runner import ROOT, FIXTURE, fixture, log
 from context_compare import compare
 
 TOOLS = ROOT / ".tools"
-AIDER_ENV = TOOLS / "aider-venv"
+AIDER_ENV = TOOLS / "aider-py312-venv"
 SCIP_TOOLS = TOOLS / "scip-dotnet"
 MAX_LOG = 250000
 # Automatic benchmark diagnostics are intentionally bounded.
@@ -29,6 +29,8 @@ def executable(directory, name):
 def invoke_checked(args, cwd, timeout, label, env=None):
     log(label)
     started = time.monotonic()
+    env = dict(os.environ if env is None else env)
+    env["PYTHONIOENCODING"] = "utf-8"
     try:
         proc = subprocess.run(
             [str(x) for x in args], cwd=str(cwd), capture_output=True, text=True,

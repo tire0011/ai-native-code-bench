@@ -5,7 +5,7 @@ Set-Location $PSScriptRoot
 if ($IntervalSeconds -lt 5) { throw 'Interval must be >= 5 seconds' }
 Write-Host "Watching GitHub from $PSScriptRoot every $IntervalSeconds seconds. Ctrl+C to stop."
 Write-Host 'Note: disable the old scheduled task to avoid duplicate checks.'
-while ($true) {
+while (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'local-results/watcher.paused'))) {
     try {
         & (Join-Path $PSScriptRoot 'watch.ps1') -LiveOutput
     }

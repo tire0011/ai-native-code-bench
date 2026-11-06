@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T152454Z",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "task": "Contributor.UpdateStatus from member name",
+  "model": "qwen2.5-coder:7b",
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 2048
+  },
+  "cases": {
+    "target_file_only": {
+      "context_chars": 0,
+      "generation_s": 10.22,
+      "prompt_tokens": 322,
+      "output_tokens": 301,
+      "done_reason": "stop",
+      "exit_code": 1,
+      "duration_s": 1.8,
+      "passed": false
+    },
+    "aider_map": {
+      "context_chars": 10000,
+      "generation_s": 9.64,
+      "prompt_tokens": 2877,
+      "output_tokens": 317,
+      "done_reason": "stop",
+      "exit_code": 1,
+      "duration_s": 1.6,
+      "passed": false
+    },
+    "selected_dependencies": {
+      "context_chars": 829,
+      "generation_s": 6.68,
+      "prompt_tokens": 500,
+      "output_tokens": 262,
+      "done_reason": "stop",
+      "exit_code": 1,
+      "duration_s": 1.6,
+      "passed": false
+    }
+  },
+  "limitations": "One task, one sample per context; does not prove a general context advantage.",
+  "baseline": {
+    "exit_code": 0,
+    "duration_s": 15.89
+  },
+  "negative_control": {
+    "exit_code": 1,
+    "duration_s": 2.18
+  },
+  "status": "complete",
+  "success": false
+}

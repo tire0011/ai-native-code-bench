@@ -84,3 +84,18 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(report["definitions"], 1)
             self.assertEqual(report["target_name_occurrences"], 1)
             self.assertGreaterEqual(report["documents"], 1)
+
+
+class ContextProbeTests(unittest.TestCase):
+    def test_child_output_uses_utf8_and_preserves_environment(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        from context_probe import invoke_checked, ROOT
+        supplied = {"EXPERIMENT": "test"}
+        with patch("context_probe.subprocess.run", return_value=SimpleNamespace(
+                returncode=0, stdout="map", stderr="")) as run:
+            status, output = invoke_checked(["aider"], ROOT, 10, "test", env=supplied)
+        self.assertTrue(status["ok"])
+        self.assertEqual(run.call_args.kwargs["env"]["PYTHONIOENCODING"], "utf-8")
+        self.assertEqual(run.call_args.kwargs["env"]["EXPERIMENT"], "test")
+        self.assertNotIn("PYTHONIOENCODING", supplied)

@@ -1,100 +1,146 @@
-# Local Coding Context Benchmark
+# AI-Native Code Bench
 
-Reproducible tests of **local Qwen + OpenCode v2 + Roslyn MCP** on a public C# project ([ardalis/CleanArchitecture](https://github.com/ardalis/CleanArchitecture)). No company code required.
+**Can a small, locally running coding LLM become a useful C# development assistant if deterministic tools prepare the right code context for it?**
 
-## Windows / PowerShell
+This repository is an **experimental benchmark and automation harness**, not a production coding agent or a new foundation model. It compares alternative ways of understanding a C# codebase while keeping inference local, reproducible and measurable.
 
-Prerequisites: Git, Python 3.11+, OpenCode v2, .NET 10 SDK, and a local Ollama Qwen model configured in OpenCode.
+> **For AI assistants opening this repository:** Read this README, then [Issue #2](https://github.com/tire0011/ai-native-code-bench/issues/2), before proposing changes. **Do not assume that successful process exit means a tool was called or that an answer is correct.** Prefer fixing the current experiment and analyzing existing results over introducing another agent framework.
 
-One-time checkout:
+## 1. Research question and hypothesis
+
+A large coding assistant can inspect a repository through tools. Small models can struggle to invoke tools reliably or locate relevant code in a large solution. Our working hypothesis is that a **smaller local model + a reliable external C# symbol/context engine** may solve useful coding tasks at lower inference cost.
+
+The experiments compare:
+
+| Approach | What it does | Current role |
+| --- | --- | --- |
+| OpenCode v2 + Ollama Qwen2.5-Coder:7B | Model attempts real built-in and Roslyn MCP tool calls | Tool-calling baseline |
+| scip-dotnet + small model | .NET semantic index selects definitions/references and supplies bounded source excerpts as prompt context | Main context-engineering experiment |
+| Aider repository map + small model | Repo-map representation supplies structural context | Planned comparison baseline |
+| Other local models, e.g. Ornith + Serena | Alternative model and agent/tool integration | Future experiment, **not yet benchmarked here** |
+
+The goal is **correct C# changes that pass builds and tests**, not simply generating plausible answers. Current experiments only test tool use and file/symbol identification; code-edit quality tests are a future milestone.
+
+## 2. Data flow
+
+```text
+GitHub main (benchmark scripts, tests, test triggers)
+         |
+         v
+Windows PowerShell watcher (polls origin/main, ~30 seconds)
+         |
+         | only reruns for non-result changes
+         v
+run.ps1
+   |-- Python unit tests
+   |-- runner.py --------------> OpenCode v2 -> Ollama Qwen 7B
+   |                                   | built-in read / Roslyn MCP requests
+   |
+   |-- context_probe.py
+   |     |-- Aider installation and repo-map probe
+   |     |-- scip-dotnet index -> index.scip (local only)
+   |     '-- context_compare.py -> SCIP snippets -> Ollama Qwen 7B
+   |                                   | same question without/with context
+   v
+results/runs/*.json + results/logs/**  (public, bounded diagnostics)
+         |
+         '-- git commit + push to main
+               |
+               '-- GitHub tracker Issue #2 / assistant analysis
+```
+
+**Execution modes:** The Windows machine performs inference and indexing. A remote web assistant uses GitHub and the watcher. The local Codex desktop assistant can execute experiments directly; the watcher is currently paused during direct research. GitHub stores code and selected diagnostics.
+
+## 3. The safe public fixture
+
+All experiments target the public repository **[ardalis/CleanArchitecture](https://github.com/ardalis/CleanArchitecture)**. `runner.py` clones it on first use to `workspaces/CleanArchitecture`; this checkout is gitignored. It uses its `.slnx` and source files to test symbol lookup.
+
+**Do not point these scripts at corporate/private repositories.** `results/logs/` contains best-effort redacted outputs, which are still public; redaction is not a security guarantee. Complete raw outputs and model answers stay in ignored `local-results/`. Generated tools, SCIP index and other binary artifacts must stay local, not be committed.
+
+## 4. Run on Windows (PowerShell only)
+
+Prerequisites: Git, Python, .NET SDK, OpenCode v2, Ollama with `qwen2.5-coder:7b` downloaded and available. Aider, uv and scip-dotnet are installed **by the project scripts** in ignored `.tools/` directories as needed; no global installation of those dependencies is intended.
 
 ```powershell
 git clone https://github.com/tire0011/ai-native-code-bench.git
 Set-Location ai-native-code-bench
-```
-
-Every run:
-
-```powershell
-git pull
 .\run.ps1
 ```
 
-**That's it.** The default model is always `ollama/qwen2.5-coder:7b`. The script runs local unit tests, prepares the public C# project, executes three OpenCode/Roslyn cases, prints progress and the actual tool names, creates a compact summary, then automatically runs **git add, commit and push on main** for `results/runs` only. Even failing experiments generate and upload diagnostic summaries if they reach the runner.
+A manual `run.ps1` executes the benchmark, attempts to upload its results, **then enters the foreground watcher** in the same PowerShell console. Stop watching with **Ctrl+C**.
 
-Use `.\run.ps1 -NoPush` for an offline dry run. For future model comparisons you can explicitly override `-Model`, but no argument is required for Qwen. Set `-TimeoutSeconds 600` if a case genuinely takes longer.
-
-Raw responses and tool payloads are stored in ignored `local-results/` **only on your PC**. Public JSON summaries contain status, timing, model name, tool names/counts and the fixture commit, not the code or transcripts. Review before uploading if you change the experiment to target private code.
-
-## What the benchmark actually measures
-
-- Whether OpenCode executes actual Roslyn MCP calls, rather than Qwen merely printing tool-call-looking JSON.
-- Whether the public solution can be loaded and its symbols/references queried.
-- Per-case elapsed time, exit code, timeouts, and errors.
-
-This **does not yet measure coding correctness**, and even a successful tool call does not prove the answer is correct. We will add validated code-understanding cases next.
-
-The Roslyn MCP is declared in the project-local `opencode.jsonc`; global providers remain unchanged. Large solutions should be loaded explicitly in the background rather than automatically during server initialization.
-
-If `opencode` launches in PowerShell but Python cannot find it, check `Get-Command opencode | Select-Object Source` and `where.exe opencode`. This runner uses the resolved executable path on Windows to avoid `WinError 2`.
-
-This project is experimental. Results depend on local OpenCode, Ollama, Roslyn and .NET installations.
-
-
-## Automatic runs when the repository changes
-
-Install or update the scheduled task on your Windows PC (PowerShell, while signed in):
+Useful variations:
 
 ```powershell
-git pull
-.\install-watcher.ps1
+.\run.ps1 -NoWatch            # one benchmark, no monitoring afterward
+.\run.ps1 -NoWatch -NoPush    # local results only; do not upload
+.\watch-loop.ps1             # start watcher directly (no immediate benchmark)
+python -u context_probe.py   # context tooling only; does not upload by itself
 ```
 
-Windows Task Scheduler launches a two-check cycle every minute (30 seconds apart) to check `origin/main` **about every 30 seconds**. If benchmark code, configuration or test cases changed, it fast-forwards the local checkout and automatically starts `run.ps1` with local Qwen, including the normal results-only commit/push. If only files inside `results/runs/` changed, it pulls but does **not** rerun (prevents feedback loops). Uncommitted tracked changes or diverged branches are never overwritten. The watcher does not start concurrent runs.
+With an existing checkout, use `git pull` first when the watcher is not running. The watcher normally fetches and fast-forwards automatically. It must not overwrite uncommitted tracked changes or force-push. Commits containing only `results/runs/` and `results/logs/` do **not** start another benchmark.
 
-Logs remain on your PC: `local-results/watch.log` (watch status) and `local-results/watch-run-*.log` (test output). The task runs in your signed-in Windows session, so the PC must be on, your user must be logged in, and Ollama/OpenCode must be available.
+**Only one monitoring mechanism should run at a time.** The normal workflow is `watch-loop.ps1` in a visible PowerShell window. An older Task Scheduler mechanism (`install-watcher.ps1`) also exists; do not activate both.
 
-Manual single check: `.watch.ps1`. Remove the task with:
+### Files you should know
 
-```powershell
-Unregister-ScheduledTask -TaskName 'AI Native Code Bench Watcher' -Confirm:$false
-```
+| File/path | Purpose |
+| --- | --- |
+| `run.ps1` | Entry point, unit tests, experiments, safe results-only Git push, then optional watcher |
+| `watch-loop.ps1`, `watch.ps1` | Foreground polling and guarded synchronization; internal runs use `-NoWatch` |
+| `runner.py`, `cases.json` | OpenCode tool-calling cases and structured event metrics |
+| `opencode.jsonc` | Project-local Roslyn MCP configuration |
+| `context_probe.py` | Installs Aider/scip-dotnet locally, creates repo map / SCIP index, launches context comparison |
+| `scip_context.py` | Reads SCIP protobuf occurrences, resolves symbols and prepares bounded C# snippets |
+| `context_compare.py` | Prompts Qwen with and without SCIP-selected context and scores file paths |
+| `tests/` | Python regression tests (including synthetic SCIP data) |
+| `results/runs/` | Public machine-readable benchmark summaries |
+| `results/logs/` | Public bounded, best-effort sanitized OpenCode diagnostics |
+| `local-results/`, `.tools/`, `workspaces/` | Local-only logs, tools and fixture; ignored by Git |
+| `benchmark-trigger.json` | Lightweight committed change that can trigger a rerun |
+| [Issue #2](https://github.com/tire0011/ai-native-code-bench/issues/2) | Living experiment tracker, blockers, hypotheses and next steps |
 
-## Public diagnostic logs
+## 5. Current verified results and blockers (2026-11-06)
 
-Each run now uploads bounded, best-effort redacted OpenCode output to `results/logs/<run-id>/<case>.log` alongside `results/runs`. Full unmodified logs stay in ignored `local-results/`. Because this is a **public GitHub repository**, never change the fixture to corporate/private code or include secrets in prompts. Automated redaction is not a security guarantee. Results and logs are pushed by `run.ps1` automatically; no manual upload required.
+**Verified by uploaded results:**
+- Local watcher can upload benchmark results to GitHub.
+- `scip-dotnet` successfully indexes the public C# fixture and creates a **446,292-byte** `index.scip`. Recorded generation time varies by run.
+- In OpenCode Qwen2.5-Coder:7B has produced **zero genuine tool events** in the tested built-in `read` and Roslyn cases. Some responses merely print tool-call-looking JSON; that is not an actual invocation.
+- The initial context experiment targeting `BaseEntity` returned **zero matching SCIP symbols**, so **no valid Qwen with/without context comparison has been measured yet**.
+- Aider installation has failed with **exit code 2**; the root cause is not yet confirmed.
 
-## Tool-calling control experiment
+**Changes awaiting confirmation from a new local run:**
+- The symbol target was changed to a class defined in the fixture, `Contributor`; additional SCIP diagnostics were added to reveal document/definition counts.
+- Aider installer now reports a bounded set of sanitized error hints and installation stage.
 
-The first case, `builtin-read`, asks Qwen to invoke OpenCode's built-in `read` tool on the public fixture's README. It does not require the Roslyn MCP. If this case has zero actual tool events, diagnose local model/tool-call integration before changing Roslyn. Subsequent cases target Roslyn. The number of actual tool events (not JSON printed as text) is recorded in the result JSON.
+Do not mark these changes as successful until a new result file demonstrates that they work. Check the latest `results/runs/context-*.json` and `context-compare-*.json`, and correlate them with the commit being tested.
 
-## Automatic Aider / SCIP context baselines
+## 6. Evaluation rules
 
-`run.ps1` also runs `context_probe.py`. On first use it **installs tools automatically and locally**, never into global Python/.NET locations:
+1. Compare *the same task* with identical model, fixture revision and controlled prompt/context budget.
+2. Score ground-truth paths, symbols and later **build/test outcomes**; do not equate exit code 0 with semantic success.
+3. Record durations, errors, index generation time and reproducible environment details.
+4. If the context selector returns zero symbols, report `no_scip_symbols` (or equivalent); **never invent a model score**.
+5. Fix one measurable bottleneck at a time, add a regression test, let the watcher run, then evaluate the uploaded result.
+6. Keep all corporate source code, credentials and full prompts out of the public repository and result logs.
 
-- Aider: `.tools/aider-venv/` (isolated Python virtual environment, `aider-chat`).
-- scip-dotnet: `.tools/scip-dotnet/` (local `dotnet tool install --tool-path`).
+## 7. How another assistant should continue
 
-Subsequent runs reuse installed tools. Aider's documented `--show-repo-map` creates a map for the public CleanArchitecture fixture; scip-dotnet runs `index` to generate a local binary `index.scip`. Only timing, status, size and fixture revision are uploaded in `results/runs/context-*.json`; detailed output and binary artifacts stay in ignored local folders. Failed setup is reported per tool and does not prevent OpenCode tests from completing. These are **baseline smoke tests**, not yet comparative Qwen code-quality scores. Installation requires internet access and a compatible Python/.NET runtime; the script records errors if unavailable. The benchmark never installs to corporate repositories.
+1. Read **[Issue #2](https://github.com/tire0011/ai-native-code-bench/issues/2)** and inspect the newest results before implementing anything.
+2. Check whether there is an uploaded run **after the most recent relevant code commit**. If there is no newer run, distinguish an inactive watcher from a long-running benchmark or a failed push; do not claim the change was tested.
+3. If SCIP has zero matches, inspect the index parser and bounded symbol diagnostics; avoid assuming the fixture defines an external library type.
+4. If Aider installation fails, use the reported stage/error hints to make a focused fix rather than retrying blindly.
+5. Change scripts and tests through GitHub; local watcher should pull, execute, upload result files, and return to polling.
+6. Update Issue #2 with **observed results**, commit references, remaining blockers and next actions.
 
-To run only the two context probes manually (PowerShell):
-```powershell
-python -u context_probe.py
-```
+**The intended end state:** a reproducible comparison showing whether deterministic C# context retrieval lets a compact local model solve real development tasks with reliable correctness and acceptable speed/cost.
 
-## Foreground workflow
+## Direct local research (2026-11-06)
 
-Run `.\run.ps1` in PowerShell to execute the benchmark once and then automatically continue into `watch-loop.ps1` in **the same console** (every 30 seconds). Stop with Ctrl+C. Internal watcher-triggered runs use `run.ps1 -NoWatch` to avoid nested watchers. For one run without ongoing monitoring use `.\run.ps1 -NoWatch`; add `-NoPush` if needed.
+Aider has been installed successfully in `.tools/aider-py312-venv` using managed Python 3.12.16. UTF-8 child output is required on Windows. A single-method Qwen pilot passed 21 real C# tests; this is not yet evidence for large changes. `multi_bench.py` now compares baseline/map-disabled, Aider repository map and SCIP-selected context on a multi-file feature using the same local model/editor, isolated checkouts and compiler/test feedback. Results are in `results/runs/multi-*.json`; see `RESEARCH.md` for scope and limitations. No large-change success has been confirmed yet.
 
-## SCIP -> Qwen comparison (experimental)
+Local polling can be paused with the file `local-results/watcher.paused`. The foreground loop exits on its next iteration; individual watcher checks return without pulling or starting benchmarks. Remove the file to enable polling again. Direct Python experiments are unaffected.
 
-The normal `run.ps1` now automatically:
-1. Installs Aider using repo-local `uv` and a managed **Python 3.12**, if needed (avoids incompatible global Python versions).
-2. Runs `scip-dotnet index` on the **public** CleanArchitecture fixture.
-3. Parses the binary SCIP index using the SCIP protobuf wire schema, identifies `BaseEntity` definitions/references and extracts bounded source snippets.
-4. Runs the same small question twice using **Ollama Qwen2.5-Coder:7B**: no repository content vs SCIP-selected context.
-5. Commits **metrics only** to `results/runs/context-compare-*.json` (definition path found, reference paths found, run time, index matches); answers and generated snippets stay in ignored `local-results/`.
+## Direct local code-edit experiment
 
-A missing symbol or Ollama dependency is reported as `status`; the comparison does not invent results. The score currently measures **correct file identification**, not code-edit quality. Aider's repo-map smoke test remains separate until its installation has succeeded and can be compared fairly.
-
-The watcher performs this setup only as part of an actual benchmark run, not for every 30-second GitHub poll. No user-level installs are needed.
+`python -u coding_bench.py` runs a bounded three-condition Qwen experiment on an isolated copy of the public fixture, using real .NET project tests. It does not push results or start a watcher. `python -u coding_repair.py <coding-run-id>` performs one additional repair using compiler feedback and installed dependency API documentation. See RESEARCH.md for prerequisites, the first 21/21-test success and limitations. Prompts and generated code stay under ignored local-results/; compact result metrics go to results/runs/.

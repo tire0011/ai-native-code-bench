@@ -1,6 +1,7 @@
 param([switch]$LiveOutput)
 # One polling iteration; usable by foreground watcher or Task Scheduler.
 $ErrorActionPreference = 'Stop'
+if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'local-results/watcher.paused')) { return }
 Set-Location $PSScriptRoot
 $logDir = Join-Path $PSScriptRoot 'local-results'
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
