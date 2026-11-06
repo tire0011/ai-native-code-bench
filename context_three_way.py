@@ -19,22 +19,22 @@ ARMS = ("no_context", "aider_map", "scip")
 SEEDS = (42, 43)
 MAX_CONTEXT = 8000
 OPTIONS = {"temperature": 0, "num_ctx": 8192, "num_predict": 512}
-PATH_PATTERN = re.compile(r"(?<![\\w./-])(?:src|tests)/[\\w./-]+\\.cs\\b", re.I)
+PATH_PATTERN = re.compile(r"(?<![\w./-])(?:src|tests)/[\w./-]+\.cs\b", re.I)
 
 
 def ground_truth(index, target):
     hits = list(occurrences(index))
     symbols = {sym for _, sym, _, definition in hits
                if definition and sym.endswith((target + "#", target + "."))}
-    definitions = {p.replace("\\\\", "/") for p, sym, _, definition in hits
+    definitions = {p.replace("\\", "/") for p, sym, _, definition in hits
                    if definition and sym in symbols}
-    references = {p.replace("\\\\", "/") for p, sym, _, definition in hits
+    references = {p.replace("\\", "/") for p, sym, _, definition in hits
                   if not definition and sym in symbols} - definitions
     return definitions, references
 
 
 def score_answer(answer, definitions, references):
-    paths = [p.replace("\\\\", "/") for p in PATH_PATTERN.findall(answer)]
+    paths = [p.replace("\\", "/") for p in PATH_PATTERN.findall(answer)]
     normalized = [p.lower() for p in paths]
     unique = set(normalized)
     correct_def = {p.lower() for p in definitions}
@@ -57,7 +57,7 @@ def make_prompt(target, context):
                 "Reply with the repository-relative path to ONE definition and up to TWO distinct "
                 "files referencing that exact type. Only output paths, one per line, "
                 "maximum three paths. If you cannot verify a path, output UNKNOWN.")
-    return question + "\\n\\nReference data (may be empty):\\n" + context
+    return question + "\n\nReference data (may be empty):\n" + context
 
 
 def generate(prompt, seed, timeout):
@@ -80,7 +80,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
     map_text = (Path(aider_map).read_text(encoding="utf-8", errors="replace")
                 if aider_map and Path(aider_map).is_file() else "")
     # Keep the original map in local-results; do not publish map or model responses.
-    map_text = re.sub(r"\\x1b\\[[0-9;]*m", "", map_text)[:MAX_CONTEXT]
+    map_text = re.sub(r"\x1b\[[0-9;]*m", "", map_text)[:MAX_CONTEXT]
     report = {"schema_version": 1, "utc": stamp, "fixture": "ardalis/CleanArchitecture",
               "model": MODEL, "tasks": list(TARGETS), "arms": list(ARMS),
               "seeds": list(SEEDS), "options": OPTIONS,
