@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T121815Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "tools": {
+    "aider": {
+      "installation": {
+        "ok": false,
+        "exit_code": 2,
+        "duration_s": 47.62
+      }
+    },
+    "scip": {
+      "installation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 13.69
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 101.37,
+        "index_created": true,
+        "index_bytes": 446292
+      }
+    }
+  }
+}
