@@ -83,10 +83,10 @@ try {
     Log 'Starting local Qwen benchmark.'
     $runLog = Join-Path $logDir ("watch-run-{0}.log" -f (Get-Date -Format 'yyyyMMdd-HHmmss'))
     if ($LiveOutput) {
-        & (Join-Path $PSScriptRoot 'run.ps1') *>&1 | Tee-Object -FilePath $runLog
+        & (Join-Path $PSScriptRoot 'run.ps1') -NoWatch *>&1 | Tee-Object -FilePath $runLog
     }
     else {
-        & (Join-Path $PSScriptRoot 'run.ps1') *> $runLog
+        & (Join-Path $PSScriptRoot 'run.ps1') -NoWatch *> $runLog
     }
     $runExit = $LASTEXITCODE
     Log "Benchmark finished with exit code $runExit; log: $runLog"
