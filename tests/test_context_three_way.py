@@ -44,6 +44,26 @@ class ThreeWayContextTests(unittest.TestCase):
         self.assertEqual(report["ram_used_gb"]["peak"], 13)
         self.assertIsNone(report["gpu_percent"])
 
+    def test_two_timeouts_skip_remaining_calls(self):
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
+        from unittest.mock import patch
+        import context_three_way as bench
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "results" / "runs").mkdir(parents=True)
+            with patch.object(bench, "ROOT", root), \
+                 patch.object(bench, "FIXTURE", root), \
+                 patch.object(bench, "ground_truth", return_value=({"src/Core/Contributor.cs"}, set())), \
+                 patch.object(bench, "extract_symbol_context", return_value=("snippet", 1, 1)), \
+                 patch.object(bench, "generate", side_effect=TimeoutError("ollama stuck")) as generate:
+                result = bench.compare_three_way(root / "dummy.scip", timeout=0.01)
+            self.assertEqual(generate.call_count, 2)
+            self.assertEqual(result["status"], "partial")
+            self.assertEqual(sum(r["status"] == "error" for r in result["results"]), 2)
+            self.assertEqual(sum(r["status"] == "skipped" for r in result["results"]), 10)
+            self.assertTrue(list((root / "results" / "runs").glob("context-three-way-*.json")))
+
     def test_same_question_format_for_every_arm(self):
         base = make_prompt("Contributor", "")
         with_context = make_prompt("Contributor", "### src/Core/Contributor.cs")
