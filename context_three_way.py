@@ -115,6 +115,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
                     try:
                         with ResourceMonitor() as monitor:
                             answer, prompt_tokens, output_tokens = generate(prompt, seed, timeout)
+                        monitor.save_local_trace(local / f"{target}-{arm}-{seed}-hardware.jsonl")
                         row["resources"] = monitor.summary()
                         (local / f"{target}-{arm}-{seed}.txt").write_text(
                             answer, encoding="utf-8")
@@ -125,6 +126,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
                                     **score_answer(answer, definitions, references)})
                     except (OSError, TimeoutError, urllib.error.URLError, ValueError) as exc:
                         if monitor is not None:
+                            monitor.save_local_trace(local / f"{target}-{arm}-{seed}-hardware.jsonl")
                             row["resources"] = monitor.summary()
                         row.update({"status": "error", "error_type": type(exc).__name__,
                                     "duration_s": round(time.monotonic() - started, 2)})
