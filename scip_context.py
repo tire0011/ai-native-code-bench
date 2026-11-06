@@ -75,7 +75,7 @@ def occurrences(path):
                 yield relative, symbol, line, definition
 
 
-def extract_symbol_context(index, root, target="BaseEntity", limit=9000):
+def extract_symbol_context(index, root, target="Contributor", limit=9000):
     """Return snippets for exact SCIP symbol matches, preferring definitions."""
     root = Path(root).resolve()
     all_hits = list(occurrences(index))
@@ -98,3 +98,17 @@ def extract_symbol_context(index, root, target="BaseEntity", limit=9000):
         parts.append(piece)
         remaining -= len(piece)
     return "\n".join(parts), len(matches), len(target_symbols)
+
+
+def index_diagnostics(index, target="Contributor"):
+    """Publish counts and bounded names only, never private source text."""
+    hits = list(occurrences(index))
+    definitions = [(path, symbol) for path, symbol, _, defined in hits if defined]
+    class_defs = [(path, symbol) for path, symbol in definitions if symbol.endswith("#")]
+    target_hits = [(path, symbol, defined) for path, symbol, _, defined in hits
+                   if target.lower() in symbol.lower()]
+    return {"occurrences": len(hits), "definitions": len(definitions),
+            "class_definitions": len(class_defs), "documents": len({p for p, _, _, _ in hits}),
+            "target_name_occurrences": len(target_hits),
+            "example_class_names": sorted({sym.rsplit("/", 1)[-1].rstrip("#")
+                                           for _, sym in class_defs})[:20]}
