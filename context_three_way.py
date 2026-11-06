@@ -12,6 +12,7 @@ import urllib.request
 
 from runner import FIXTURE, ROOT, log
 from scip_context import extract_symbol_context, occurrences
+from resource_monitor import ResourceMonitor
 
 MODEL = "qwen2.5-coder:7b"
 TARGETS = ("Contributor", "ContributorStatus")
@@ -109,8 +110,11 @@ def compare_three_way(index, aider_map=None, timeout=150):
                     log(f"Three-way context: {target} {arm} seed={seed}")
                     row = {"target": target, "seed": seed, "arm": arm,
                            "context_chars": len(context), "scip_matches": matches}
+                    monitor = None
                     try:
-                        answer, prompt_tokens, output_tokens = generate(prompt, seed, timeout)
+                        with ResourceMonitor() as monitor:
+                            answer, prompt_tokens, output_tokens = generate(prompt, seed, timeout)
+                        row["resources"] = monitor.summary()
                         (local / f"{target}-{arm}-{seed}.txt").write_text(
                             answer, encoding="utf-8")
                         row.update({"status": "ok",
@@ -119,7 +123,10 @@ def compare_three_way(index, aider_map=None, timeout=150):
                                     "output_tokens": output_tokens,
                                     **score_answer(answer, definitions, references)})
                     except (OSError, TimeoutError, urllib.error.URLError, ValueError) as exc:
-                        row.update({"status": "error", "error_type": type(exc).__name__})
+                        if monitor is not None:
+                            row["resources"] = monitor.summary()
+                        row.update({"status": "error", "error_type": type(exc).__name__,
+                                    "duration_s": round(time.monotonic() - started, 2)})
                     report["results"].append(row)
         complete = sum(r.get("status") == "ok" for r in report["results"])
         report["status"] = "complete" if complete == len(TARGETS) * len(ARMS) * len(SEEDS) else "partial"
