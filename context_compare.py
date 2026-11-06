@@ -66,7 +66,9 @@ def compare(index_path, model="qwen2.5-coder:7b", timeout=150):
                 }
             except (OSError, subprocess.TimeoutExpired) as exc:
                 result["cases"][label] = {"ok": False, "error": type(exc).__name__}
-        result["status"] = "complete"
+        result["status"] = ("complete" if len(result["cases"]) == 2 and
+                            all(case.get("ok") for case in result["cases"].values())
+                            else "partial")
         return result
     except (ValueError, OSError) as exc:
         result["status"] = "index_read_error"
