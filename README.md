@@ -39,3 +39,23 @@ The Roslyn MCP is declared in the project-local `opencode.jsonc`; global provide
 If `opencode` launches in PowerShell but Python cannot find it, check `Get-Command opencode | Select-Object Source` and `where.exe opencode`. This runner uses the resolved executable path on Windows to avoid `WinError 2`.
 
 This project is experimental. Results depend on local OpenCode, Ollama, Roslyn and .NET installations.
+
+
+## Automatic runs when the repository changes
+
+One-time setup on your Windows PC (PowerShell, while signed in):
+
+```powershell
+git pull
+.\install-watcher.ps1
+```
+
+Windows Task Scheduler checks `origin/main` **every five minutes**. If benchmark code, configuration or test cases changed, it fast-forwards the local checkout and automatically starts `run.ps1` with local Qwen, including the normal results-only commit/push. If only files inside `results/runs/` changed, it pulls but does **not** rerun (prevents feedback loops). Uncommitted tracked changes or diverged branches are never overwritten. The watcher does not start concurrent runs.
+
+Logs remain on your PC: `local-results/watch.log` (watch status) and `local-results/watch-run-*.log` (test output). The task runs in your signed-in Windows session, so the PC must be on, your user must be logged in, and Ollama/OpenCode must be available.
+
+Manual single check: `.watch.ps1`. Remove the task with:
+
+```powershell
+Unregister-ScheduledTask -TaskName 'AI Native Code Bench Watcher' -Confirm:$false
+```
