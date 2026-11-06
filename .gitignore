@@ -1,6 +1,4 @@
-__pycache__/
-*.py[cod]
-.venv/
-node_modules/
-results/
-.pytest_cache/
+/workspaces/
+/local-results/
+/__pycache__/
+*.pyc

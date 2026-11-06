@@ -1,0 +1,14 @@
+[
+  {
+    "id": "load",
+    "goal": "Use the available Roslyn MCP tools to load the public solution using the background loading option (if supported) and report whether a real MCP tool call succeeded. Do not write example tool-call JSON. Do not change any files."
+  },
+  {
+    "id": "find-symbol",
+    "goal": "Use Roslyn MCP to load the public solution in the background, then locate the definition of the C# symbol BaseEntity (or report that it is not found). Make actual tool calls. Do not write pseudocode. Do not modify files."
+  },
+  {
+    "id": "find-references",
+    "goal": "Use Roslyn MCP to load the public solution in the background, locate the C# symbol BaseEntity, and request its references with actual tools. If loading is still in progress, poll the tool status if available. Do not invent results or modify files."
+  }
+]

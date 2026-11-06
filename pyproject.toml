@@ -1,8 +1,0 @@
-[project]
-name = "ai-native-code-bench"
-version = "0.1.0"
-description = "Reproducible experiments on AI-native programming representations"
-requires-python = ">=3.11"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
