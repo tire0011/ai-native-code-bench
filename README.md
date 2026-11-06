@@ -144,3 +144,12 @@ Local polling can be paused with the file `local-results/watcher.paused`. The fo
 ## Direct local code-edit experiment
 
 `python -u coding_bench.py` runs a bounded three-condition Qwen experiment on an isolated copy of the public fixture, using real .NET project tests. It does not push results or start a watcher. `python -u coding_repair.py <coding-run-id>` performs one additional repair using compiler feedback and installed dependency API documentation. See RESEARCH.md for prerequisites, the first 21/21-test success and limitations. Prompts and generated code stay under ignored local-results/; compact result metrics go to results/runs/.
+
+
+## Bounded multi-file repair experiments
+
+`multi_bench.py` is a **separate, opt-in, expensive** local coding benchmark; it is NOT automatically invoked by `run.ps1` or the 30-second watcher. The previous open-ended repair loop was changed to stop after **four new rounds per invocation** (override with `MULTI_MAX_NEW_ROUNDS`) or after **three non-improving rounds per arm** (override with `MULTI_STALE_LIMIT`). The last report then states `needs_review` rather than implying completion. Candidate edits are evaluated against real .NET tests; `best-production.zip` retains the best-scoring code state, and failed regressions are restored.
+
+For the foreground watcher, a stale `local-results/watcher.paused` marker from Codex Desktop is automatically cleared when launching `watch-loop.ps1` explicitly; existing installations need to pull the updated script once first. The watcher still avoids repeating tests for commits containing only result/log files.
+
+Do not assume an increasing number of model calls indicates meaningful progress. Change the failure-specific context or task decomposition before resuming a stalled arm.
