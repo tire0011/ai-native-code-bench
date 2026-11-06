@@ -27,8 +27,18 @@ try {
         Log "Skipping: unexpected branch or remote: $branch $remote"
         return
     }
+    $dirtyPaths = @(Invoke-GitChecked @('diff', '--name-only', 'HEAD') | Where-Object { $_ })
+    if ($dirtyPaths.Count -gt 0) {
+        $notResults = @($dirtyPaths | Where-Object { $_ -notmatch '^results/(runs|logs)/' })
+        if ($notResults.Count -gt 0) {
+            Log "Tracked code changes detected ($($notResults -join ', ')); leaving them untouched."
+            return
+        }
+        Log 'Only local benchmark results changed; committing and synchronizing safely...'
+        & (Join-Path $PSScriptRoot 'sync-results.ps1') -CommitPending
+    }
     if (@(Invoke-GitChecked @('status', '--porcelain', '--untracked-files=no')).Count -gt 0) {
-        Log 'Tracked local changes detected; skipping pull to protect work.'
+        Log 'Tracked local changes remain; skipping pull to protect work.'
         return
     }
     Log 'Checking GitHub for updates...'
