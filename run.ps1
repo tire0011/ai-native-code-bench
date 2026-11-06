@@ -21,26 +21,9 @@ if ($NoPush) {
     Write-Host 'Upload skipped (-NoPush)'
 }
 else {
-    # Only auto-push public benchmark results/logs on our own main branch.
-    $branch = (git branch --show-current).Trim()
-    $remote = (git remote get-url origin).Trim()
-    if ($branch -ne 'main' -or $remote -notmatch '^(https://github\.com/|git@github\.com:|ssh://git@github\.com/)tire0011/ai-native-code-bench(\.git)?$') {
-        Write-Warning "No auto-push: branch=$branch, origin=$remote"
-    }
-    else {
-        $changed = @(git status --porcelain -- results/runs results/logs)
-        if ($changed.Count -gt 0) {
-            Write-Host "[$(Get-Date -Format HH:mm:ss)] Commit results..."
-            git add -- results/runs results/logs
-            if ($LASTEXITCODE -ne 0) { throw 'git add failed' }
-            git commit -m "Benchmark run $Model $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
-            if ($LASTEXITCODE -ne 0) { throw 'git commit failed' }
-            Write-Host "[$(Get-Date -Format HH:mm:ss)] Push results..."
-            git push origin main
-            if ($LASTEXITCODE -ne 0) { throw 'git push failed; local commit retained' }
-            Write-Host "[$(Get-Date -Format HH:mm:ss)] Results uploaded to GitHub"
-        }
-    }
+    # Reconcile concurrent GitHub writes without rebasing code commits.
+    & (Join-Path $PSScriptRoot 'sync-results.ps1') -CommitPending
+    if (-not $?) { throw 'Result synchronization failed; local results retained' }
 }
 if ($runExit -ne 0) { Write-Warning "Benchmark failed with exit code $runExit" }
 if (-not $NoWatch) {
