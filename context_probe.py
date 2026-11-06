@@ -16,6 +16,7 @@ TOOLS = ROOT / ".tools"
 AIDER_ENV = TOOLS / "aider-venv"
 SCIP_TOOLS = TOOLS / "scip-dotnet"
 MAX_LOG = 250000
+# Automatic benchmark diagnostics are intentionally bounded.
 
 
 def executable(directory, name):
