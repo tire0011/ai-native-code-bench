@@ -185,7 +185,7 @@ def main():
         prompt = ("READ-ONLY research on a PUBLIC C# repo. Do not access other "
                   "repos, credentials or configs. Never modify files. "
                   f"Solution: {solution}. " + case["goal"])
-        command = ["run", "--standalone", "--archived", "--agent", "plan",
+        command = ["run", "--standalone", "--agent", "plan",
                    "--format", "json", "--model", args.model, prompt]
         start = time.monotonic()
         exe = shutil.which("opencode")
