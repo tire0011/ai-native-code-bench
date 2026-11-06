@@ -2,7 +2,8 @@ param(
     [string]$Model = 'ollama/qwen2.5-coder:7b',
     [string]$Cases = '',
     [int]$TimeoutSeconds = 360,
-    [switch]$NoPush
+    [switch]$NoPush,
+    [switch]$NoWatch
 )
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
@@ -18,27 +19,32 @@ python -u context_probe.py
 if ($LASTEXITCODE -ne 0) { Write-Warning 'Context probe could not complete; existing benchmark results are retained.' }
 if ($NoPush) {
     Write-Host 'Upload skipped (-NoPush)'
-    exit $runExit
 }
-
-# Only auto-push public benchmark results/logs on our own main branch.
-$branch = (git branch --show-current).Trim()
-$remote = (git remote get-url origin).Trim()
-if ($branch -ne 'main' -or $remote -notmatch '^(https://github\.com/|git@github\.com:|ssh://git@github\.com/)tire0011/ai-native-code-bench(\.git)?$') {
-    Write-Warning "No auto-push: branch=$branch, origin=$remote"
-    exit $runExit
+else {
+    # Only auto-push public benchmark results/logs on our own main branch.
+    $branch = (git branch --show-current).Trim()
+    $remote = (git remote get-url origin).Trim()
+    if ($branch -ne 'main' -or $remote -notmatch '^(https://github\\.com/|git@github\\.com:|ssh://git@github\\.com/)tire0011/ai-native-code-bench(\\.git)?$') {
+        Write-Warning "No auto-push: branch=$branch, origin=$remote"
+    }
+    else {
+        $changed = @(git status --porcelain -- results/runs results/logs)
+        if ($changed.Count -gt 0) {
+            Write-Host "[$(Get-Date -Format HH:mm:ss)] Commit results..."
+            git add -- results/runs results/logs
+            if ($LASTEXITCODE -ne 0) { throw 'git add failed' }
+            git commit -m "Benchmark run $Model $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+            if ($LASTEXITCODE -ne 0) { throw 'git commit failed' }
+            Write-Host "[$(Get-Date -Format HH:mm:ss)] Push results..."
+            git push origin main
+            if ($LASTEXITCODE -ne 0) { throw 'git push failed; local commit retained' }
+            Write-Host "[$(Get-Date -Format HH:mm:ss)] Results uploaded to GitHub"
+        }
+    }
 }
-$changed = @(git status --porcelain -- results/runs results/logs)
-if ($changed.Count -gt 0) {
-    Write-Host "[$(Get-Date -Format HH:mm:ss)] Commit results..."
-    git add -- results/runs results/logs
-    if ($LASTEXITCODE -ne 0) { throw 'git add failed' }
-    git commit -m "Benchmark run $Model $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
-    if ($LASTEXITCODE -ne 0) { throw 'git commit failed' }
-    Write-Host "[$(Get-Date -Format HH:mm:ss)] Push results..."
-    git push origin main
-    if ($LASTEXITCODE -ne 0) { throw 'git push failed; local commit retained' }
-    Write-Host "[$(Get-Date -Format HH:mm:ss)] Results uploaded to GitHub"
+if ($runExit -ne 0) { Write-Warning "Benchmark failed with exit code $runExit" }
+if (-not $NoWatch) {
+    Write-Host 'Starting foreground GitHub watcher (Ctrl+C to stop)...'
+    & (Join-Path $PSScriptRoot 'watch-loop.ps1')
 }
-if ($runExit -ne 0) { Write-Warning 'Benchmark failed; diagnostic summary uploaded' }
 exit $runExit
