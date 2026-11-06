@@ -4,6 +4,7 @@ CPU percentage is system-wide (not per Ollama process). GPU metrics require nvid
 Only aggregated numbers are published; individual samples stay local.
 """
 import ctypes
+import json
 import os
 from pathlib import Path
 import shutil
@@ -88,6 +89,12 @@ class ResourceMonitor:
     def __exit__(self, *_):
         self.stop_event.set()
         self.thread.join(timeout=6)
+
+    def save_local_trace(self, path):
+        # Raw timeline is intentionally kept in ignored local-results/, not GitHub.
+        with Path(path).open("w", encoding="utf-8") as output:
+            for sample_number, row in enumerate(self.rows):
+                output.write(json.dumps({"sample": sample_number, **row}) + "\n")
 
     def summary(self):
         result = {"samples": len(self.rows), "interval_seconds": self.interval}
