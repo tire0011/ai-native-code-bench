@@ -4,6 +4,7 @@ Only structured metrics are published. Raw prompts and model answers remain loca
 """
 import datetime as dt
 import json
+import os
 from pathlib import Path
 import re
 import time
@@ -14,7 +15,7 @@ from runner import FIXTURE, ROOT, log
 from scip_context import extract_symbol_context, occurrences
 from resource_monitor import ResourceMonitor
 
-MODEL = "qwen2.5-coder:7b"
+MODEL = os.environ.get("CONTEXT_MODEL", "qwen2.5-coder:7b")
 TARGETS = ("Contributor", "ContributorStatus")
 ARMS = ("no_context", "aider_map", "scip")
 SEEDS = (42, 43)
