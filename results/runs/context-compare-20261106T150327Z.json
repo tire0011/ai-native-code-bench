@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T150327Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "model": "qwen2.5-coder:7b",
+  "method": "SCIP definition+references snippets",
+  "cases": {},
+  "index": {
+    "matched_occurrences": 0,
+    "symbols": 0,
+    "context_chars": 0
+  },
+  "status": "no_scip_symbols"
+}

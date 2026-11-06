@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T145400Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "tools": {
+    "aider": {
+      "installation": {
+        "ok": false,
+        "exit_code": 2,
+        "duration_s": 6.27,
+        "error_category": "unknown"
+      }
+    },
+    "scip": {
+      "installation": {
+        "ok": true,
+        "cached": true
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 48.95,
+        "error_category": null,
+        "index_created": true,
+        "index_bytes": 446292
+      }
+    }
+  },
+  "comparison": {
+    "schema_version": 1,
+    "utc": "20261106T145455Z",
+    "fixture": "ardalis/CleanArchitecture",
+    "model": "qwen2.5-coder:7b",
+    "method": "SCIP definition+references snippets",
+    "cases": {},
+    "index": {
+      "matched_occurrences": 0,
+      "symbols": 0,
+      "context_chars": 0
+    },
+    "status": "no_scip_symbols"
+  }
+}
