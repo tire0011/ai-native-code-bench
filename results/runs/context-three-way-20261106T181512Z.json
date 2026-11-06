@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T181512Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "model": "qwen2.5-coder:7b",
+  "tasks": [
+    "Contributor",
+    "ContributorStatus"
+  ],
+  "arms": [
+    "no_context",
+    "aider_map",
+    "scip"
+  ],
+  "seeds": [
+    42,
+    43
+  ],
+  "options": {
+    "temperature": 0,
+    "num_ctx": 8192,
+    "num_predict": 512
+  },
+  "context_limit_chars": 8000,
+  "aider_map_available": true,
+  "results": [
+    {
+      "target": "Contributor",
+      "seed": 42,
+      "arm": "no_context",
+      "context_chars": 0,
+      "scip_matches": 59,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "Contributor",
+      "seed": 42,
+      "arm": "aider_map",
+      "context_chars": 8000,
+      "scip_matches": 59,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "Contributor",
+      "seed": 42,
+      "arm": "scip",
+      "context_chars": 7761,
+      "scip_matches": 59,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "Contributor",
+      "seed": 43,
+      "arm": "no_context",
+      "context_chars": 0,
+      "scip_matches": 59,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "Contributor",
+      "seed": 43,
+      "arm": "aider_map",
+      "context_chars": 8000,
+      "scip_matches": 59,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "Contributor",
+      "seed": 43,
+      "arm": "scip",
+      "context_chars": 7761,
+      "scip_matches": 59,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "ContributorStatus",
+      "seed": 42,
+      "arm": "no_context",
+      "context_chars": 0,
+      "scip_matches": 12,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "ContributorStatus",
+      "seed": 42,
+      "arm": "aider_map",
+      "context_chars": 8000,
+      "scip_matches": 12,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "ContributorStatus",
+      "seed": 42,
+      "arm": "scip",
+      "context_chars": 7429,
+      "scip_matches": 12,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "ContributorStatus",
+      "seed": 43,
+      "arm": "no_context",
+      "context_chars": 0,
+      "scip_matches": 12,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "ContributorStatus",
+      "seed": 43,
+      "arm": "aider_map",
+      "context_chars": 8000,
+      "scip_matches": 12,
+      "status": "error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "target": "ContributorStatus",
+      "seed": 43,
+      "arm": "scip",
+      "context_chars": 7429,
+      "scip_matches": 12,
+      "status": "error",
+      "error_type": "TimeoutError"
+    }
+  ],
+  "status": "partial"
+}

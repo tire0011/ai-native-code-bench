@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T181345Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "tools": {
+    "aider": {
+      "installation": {
+        "ok": true,
+        "cached": true
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 33.47,
+        "error_category": null,
+        "diagnostic_hints": [],
+        "characters": 14238,
+        "nonempty_lines": 456
+      }
+    },
+    "scip": {
+      "installation": {
+        "ok": true,
+        "cached": true
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 53.58,
+        "error_category": null,
+        "diagnostic_hints": [],
+        "index_created": true,
+        "index_bytes": 446292
+      }
+    }
+  },
+  "comparison": {
+    "schema_version": 1,
+    "utc": "20261106T181512Z",
+    "fixture": "ardalis/CleanArchitecture",
+    "model": "qwen2.5-coder:7b",
+    "tasks": [
+      "Contributor",
+      "ContributorStatus"
+    ],
+    "arms": [
+      "no_context",
+      "aider_map",
+      "scip"
+    ],
+    "seeds": [
+      42,
+      43
+    ],
+    "options": {
+      "temperature": 0,
+      "num_ctx": 8192,
+      "num_predict": 512
+    },
+    "context_limit_chars": 8000,
+    "aider_map_available": true,
+    "results": [
+      {
+        "target": "Contributor",
+        "seed": 42,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 59,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "Contributor",
+        "seed": 42,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 59,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "Contributor",
+        "seed": 42,
+        "arm": "scip",
+        "context_chars": 7761,
+        "scip_matches": 59,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "Contributor",
+        "seed": 43,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 59,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "Contributor",
+        "seed": 43,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 59,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "Contributor",
+        "seed": 43,
+        "arm": "scip",
+        "context_chars": 7761,
+        "scip_matches": 59,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 42,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 12,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 42,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 12,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 42,
+        "arm": "scip",
+        "context_chars": 7429,
+        "scip_matches": 12,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 43,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 12,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 43,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 12,
+        "status": "error",
+        "error_type": "TimeoutError"
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 43,
+        "arm": "scip",
+        "context_chars": 7429,
+        "scip_matches": 12,
+        "status": "error",
+        "error_type": "TimeoutError"
+      }
+    ],
+    "status": "partial"
+  }
+}
