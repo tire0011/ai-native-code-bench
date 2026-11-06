@@ -12,7 +12,7 @@ import time
 import re
 
 from runner import ROOT, FIXTURE, fixture, log
-from context_compare import compare
+from context_three_way import compare_three_way
 
 TOOLS = ROOT / ".tools"
 AIDER_ENV = TOOLS / "aider-py312-venv"
@@ -179,7 +179,10 @@ def main():
                                       "index_bytes": index_path.stat().st_size if index_path.is_file() else 0}
         result["tools"][name] = info
         if name == "scip" and info.get("generation", {}).get("ok") and index_path.is_file():
-            result["comparison"] = compare(index_path)
+            aider_info = result["tools"].get("aider", {})
+            map_path = logs / "aider-map.txt"
+            has_map = aider_info.get("generation", {}).get("ok") and map_path.is_file()
+            result["comparison"] = compare_three_way(index_path, map_path if has_map else None)
         log(f"Context {name}: installed={setup.get('ok')}, generated={info.get('generation', {}).get('ok')}")
     out = ROOT / "results" / "runs" / ("context-" + stamp + ".json")
     out.parent.mkdir(parents=True, exist_ok=True)
