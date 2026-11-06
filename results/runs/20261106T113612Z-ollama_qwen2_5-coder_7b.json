@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "utc": "20261106T113612Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "solution_name": "Clean.Architecture.slnx",
+  "results": [
+    {
+      "case": "load",
+      "model": "ollama/qwen2.5-coder:7b",
+      "duration_s": 0.35,
+      "exit_code": 1,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": false,
+      "roslyn_invoked": false,
+      "events": 0,
+      "tool_calls": {},
+      "tool_calls_total": 0,
+      "roslyn_calls": 0,
+      "error_events": 0
+    },
+    {
+      "case": "find-symbol",
+      "model": "ollama/qwen2.5-coder:7b",
+      "duration_s": 0.32,
+      "exit_code": 1,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": false,
+      "roslyn_invoked": false,
+      "events": 0,
+      "tool_calls": {},
+      "tool_calls_total": 0,
+      "roslyn_calls": 0,
+      "error_events": 0
+    },
+    {
+      "case": "find-references",
+      "model": "ollama/qwen2.5-coder:7b",
+      "duration_s": 0.37,
+      "exit_code": 1,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": false,
+      "roslyn_invoked": false,
+      "events": 0,
+      "tool_calls": {},
+      "tool_calls_total": 0,
+      "roslyn_calls": 0,
+      "error_events": 0
+    }
+  ]
+}
