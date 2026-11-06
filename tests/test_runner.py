@@ -1,6 +1,6 @@
 import json
 import unittest
-from runner import parse_events, tool_name
+from runner import parse_events, tool_name, build_opencode_command
 
 class RunnerTests(unittest.TestCase):
     def test_real_tool(self):
@@ -21,3 +21,9 @@ class RunnerTests(unittest.TestCase):
 
     def test_invalid_tool_name(self):
         self.assertIsNone(tool_name({'type':'tool_use','part':{'tool':'bad;command'}}))
+
+    def test_opencode_v2_flags(self):
+        cmd = build_opencode_command('ollama/qwen2.5-coder:7b', 'hello')
+        self.assertEqual(cmd[:2], ['run', '--standalone'])
+        self.assertNotIn('--archived', cmd)
+        self.assertEqual(cmd[-1], 'hello')
