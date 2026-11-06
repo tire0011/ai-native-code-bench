@@ -67,3 +67,17 @@ Each run now uploads bounded, best-effort redacted OpenCode output to `results/l
 ## Tool-calling control experiment
 
 The first case, `builtin-read`, asks Qwen to invoke OpenCode's built-in `read` tool on the public fixture's README. It does not require the Roslyn MCP. If this case has zero actual tool events, diagnose local model/tool-call integration before changing Roslyn. Subsequent cases target Roslyn. The number of actual tool events (not JSON printed as text) is recorded in the result JSON.
+
+## Automatic Aider / SCIP context baselines
+
+`run.ps1` also runs `context_probe.py`. On first use it **installs tools automatically and locally**, never into global Python/.NET locations:
+
+- Aider: `.tools/aider-venv/` (isolated Python virtual environment, `aider-chat`).
+- scip-dotnet: `.tools/scip-dotnet/` (local `dotnet tool install --tool-path`).
+
+Subsequent runs reuse installed tools. Aider's documented `--show-repo-map` creates a map for the public CleanArchitecture fixture; scip-dotnet runs `index` to generate a local binary `index.scip`. Only timing, status, size and fixture revision are uploaded in `results/runs/context-*.json`; detailed output and binary artifacts stay in ignored local folders. Failed setup is reported per tool and does not prevent OpenCode tests from completing. These are **baseline smoke tests**, not yet comparative Qwen code-quality scores. Installation requires internet access and a compatible Python/.NET runtime; the script records errors if unavailable. The benchmark never installs to corporate repositories.
+
+To run only the two context probes manually (PowerShell):
+```powershell
+python -u context_probe.py
+```
