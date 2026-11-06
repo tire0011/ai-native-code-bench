@@ -85,3 +85,16 @@ python -u context_probe.py
 ## Foreground workflow
 
 Run `.\run.ps1` in PowerShell to execute the benchmark once and then automatically continue into `watch-loop.ps1` in **the same console** (every 30 seconds). Stop with Ctrl+C. Internal watcher-triggered runs use `run.ps1 -NoWatch` to avoid nested watchers. For one run without ongoing monitoring use `.\run.ps1 -NoWatch`; add `-NoPush` if needed.
+
+## SCIP -> Qwen comparison (experimental)
+
+The normal `run.ps1` now automatically:
+1. Installs Aider using repo-local `uv` and a managed **Python 3.12**, if needed (avoids incompatible global Python versions).
+2. Runs `scip-dotnet index` on the **public** CleanArchitecture fixture.
+3. Parses the binary SCIP index using the SCIP protobuf wire schema, identifies `BaseEntity` definitions/references and extracts bounded source snippets.
+4. Runs the same small question twice using **Ollama Qwen2.5-Coder:7B**: no repository content vs SCIP-selected context.
+5. Commits **metrics only** to `results/runs/context-compare-*.json` (definition path found, reference paths found, run time, index matches); answers and generated snippets stay in ignored `local-results/`.
+
+A missing symbol or Ollama dependency is reported as `status`; the comparison does not invent results. The score currently measures **correct file identification**, not code-edit quality. Aider's repo-map smoke test remains separate until its installation has succeeded and can be compared fairly.
+
+The watcher performs this setup only as part of an actual benchmark run, not for every 30-second GitHub poll. No user-level installs are needed.
