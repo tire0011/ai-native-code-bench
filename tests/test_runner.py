@@ -84,3 +84,10 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(report["definitions"], 1)
             self.assertEqual(report["target_name_occurrences"], 1)
             self.assertGreaterEqual(report["documents"], 1)
+
+    def test_aider_venv_recovery_is_isolated(self):
+        from pathlib import Path
+        import context_probe
+        source = Path(context_probe.__file__).read_text(encoding="utf-8")
+        self.assertIn('[uv, "venv", "--clear", "--python", "3.12"', source)
+        self.assertIn('AIDER_ENV = TOOLS / "aider-venv"', source)
