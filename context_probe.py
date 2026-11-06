@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import time
+import re
 
 from runner import ROOT, FIXTURE, fixture, log
 from context_compare import compare
@@ -50,11 +51,23 @@ def invoke_checked(args, cwd, timeout, label, env=None):
                 category = "permission"
             else:
                 category = "unknown"
+        hints = []
+        if proc.returncode:
+            for row in raw.splitlines():
+                row = row.strip()
+                if re.match(r"(?i)^(error:|caused by:|unknown option|unrecognized|unexpected argument|hint:)", row):
+                    row = re.sub(re.escape(str(ROOT)), "<BENCH>", row, flags=re.I)
+                    row = re.sub(re.escape(str(Path.home())), "<HOME>", row, flags=re.I)
+                    row = re.sub(r"(?i)(token|password|api.key)\\s*[:=]\\s*\\S+", r"\\1=<REDACTED>", row)
+                    hints.append(row[:180])
+                if len(hints) >= 3:
+                    break
         return {
             "ok": proc.returncode == 0,
             "exit_code": proc.returncode,
             "duration_s": round(time.monotonic()-started, 2),
             "error_category": category,
+            "diagnostic_hints": hints,
         }, raw
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {
@@ -100,11 +113,13 @@ def prepare_aider():
         ROOT, 300, "Preparing Aider Python 3.12 environment...", env=env
     )
     if not status["ok"]:
+        status["stage"] = "uv_venv"
         return status, raw, None
     status, install_log = invoke_checked(
         [uv, "pip", "install", "--python", executable(AIDER_ENV, "python"), "aider-chat"],
         ROOT, 600, "Installing Aider with compatible Python...", env=env
     )
+    status["stage"] = "uv_pip_install"
     return status, raw + "\n" + install_log, aider if status["ok"] and aider.is_file() else None
 
 def prepare_scip():
