@@ -1,3 +1,4 @@
+param([switch]$LiveOutput)
 # Called once by Windows Task Scheduler every 5 minutes.
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
@@ -48,7 +49,12 @@ try {
     }
     Log 'Starting local Qwen benchmark.'
     $runLog = Join-Path $logDir ("watch-run-{0}.log" -f (Get-Date -Format 'yyyyMMdd-HHmmss'))
-    & (Join-Path $PSScriptRoot 'run.ps1') *> $runLog
+    if ($LiveOutput) {
+        & (Join-Path $PSScriptRoot 'run.ps1') *>&1 | Tee-Object -FilePath $runLog
+    }
+    else {
+        & (Join-Path $PSScriptRoot 'run.ps1') *> $runLog
+    }
     $runExit = $LASTEXITCODE
     Log "Benchmark finished with exit code $runExit; log: $runLog"
 }
