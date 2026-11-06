@@ -168,3 +168,19 @@ The normal watcher-triggered `run.ps1` now runs `context_probe.py`, which genera
 Metrics are published as `results/runs/context-three-way-*.json`. Scoring checks exact repository-relative paths, duplicates, unexpected paths, output format, durations and Ollama token counts. **No model answers or map text are published.** The baseline has less prompt context by design; context byte counts and prompt tokens are recorded, so this is a context-availability comparison, **not an equal-token ablation**. Two symbols and two seeds are an initial smoke test, not a statistically robust general ranking. If Aider is unavailable the arm is explicitly marked missing, never replaced by fabricated data.
 
 This is a **read-only symbol lookup experiment**. The separate `multi_bench.py` C# code-edit test remains explicitly opt-in and is never launched by the watcher.
+
+## Hardware telemetry and alternative model test
+
+`resource_monitor.py` samples **Windows system-wide CPU utilization, used system RAM, NVIDIA GPU utilization and GPU memory** every 3 seconds when running the context probes. Each experiment publishes only average/peak statistics in `resources` fields; values are `null` when not supported or NVIDIA tools are absent. These are **system-level** readings, not per-model/per-process resource attribution. OpenCode's old `runner.py` tests have no resource attribution yet.
+
+The Aider repository-map smoke test uses `--no-browser --no-show-model-warnings --no-detect-urls` to avoid unrelated documentation windows from a non-interactive benchmark. Model-metadata warnings are not proof of a broken model; see [Aider model warnings](https://aider.chat/docs/llms/warnings.html).
+
+To test another already-installed local model without changing the default baseline:
+
+```powershell
+$env:CONTEXT_MODEL = 'qwen3:8b'
+python -u context_probe.py
+Remove-Item Env:CONTEXT_MODEL
+```
+
+This standalone command **does not upload** results automatically. To compare and upload using the normal watcher, keep Qwen2.5-Coder:7B as baseline and explicitly configure `CONTEXT_MODEL` in the watcher process before starting; avoid changing models mid-comparison. The `qwen3:8b` Ollama model is about 5.2 GB compared with ~4.7 GB for `qwen2.5-coder:7b`, and may compete for the same 8 GB VRAM with context/KV cache. Do not assume the newer model is faster or more accurate before measuring it.
