@@ -81,3 +81,7 @@ To run only the two context probes manually (PowerShell):
 ```powershell
 python -u context_probe.py
 ```
+
+## Foreground workflow
+
+Run `.\run.ps1` in PowerShell to execute the benchmark once and then automatically continue into `watch-loop.ps1` in **the same console** (every 30 seconds). Stop with Ctrl+C. Internal watcher-triggered runs use `run.ps1 -NoWatch` to avoid nested watchers. For one run without ongoing monitoring use `.\run.ps1 -NoWatch`; add `-NoPush` if needed.
