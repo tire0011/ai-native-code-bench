@@ -29,6 +29,21 @@ class ThreeWayContextTests(unittest.TestCase):
         self.assertFalse(scored["definition_found"])
         self.assertEqual(scored["exact_path_precision"], 0.0)
 
+    def test_resource_summary_reports_average_peak_and_missing_gpu(self):
+        from resource_monitor import ResourceMonitor
+        monitor = ResourceMonitor()
+        monitor.rows = [
+            {"cpu_percent": 20, "ram_percent": 50, "ram_used_gb": 12,
+             "gpu_percent": None, "gpu_memory_mb": None},
+            {"cpu_percent": 60, "ram_percent": 52, "ram_used_gb": 13,
+             "gpu_percent": None, "gpu_memory_mb": None},
+        ]
+        report = monitor.summary()
+        self.assertEqual(report["cpu_percent"]["avg"], 40)
+        self.assertEqual(report["cpu_percent"]["peak"], 60)
+        self.assertEqual(report["ram_used_gb"]["peak"], 13)
+        self.assertIsNone(report["gpu_percent"])
+
     def test_same_question_format_for_every_arm(self):
         base = make_prompt("Contributor", "")
         with_context = make_prompt("Contributor", "### src/Core/Contributor.cs")
