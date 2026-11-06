@@ -36,6 +36,8 @@ try {
     $upstream = (Invoke-GitChecked @('rev-parse', 'origin/main') | Select-Object -First 1).Trim()
     if ($localHead -eq $upstream) { Log 'No changes'; return }
     $base = (Invoke-GitChecked @('merge-base', 'HEAD', 'origin/main') | Select-Object -First 1).Trim()
+    $changes = @(Invoke-GitChecked @('diff', '--name-only', "$base..origin/main", '--', '.'))
+    $rebased = $false
     if ($base -ne $localHead) {
         # Safe auto-rebase only when EVERY local-only commit changes benchmark result files.
         # User code commits and all uncommitted tracked files are never rebased.
@@ -61,11 +63,19 @@ try {
         }
         $localHead = (Invoke-GitChecked @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
         Log 'Result-only commits safely rebased.'
+        $rebased = $true
     }
-    $changes = @(Invoke-GitChecked @('diff', '--name-only', "$base..origin/main", '--', '.'))
     $needRun = @($changes | Where-Object { $_ -and $_ -notmatch '^results/(runs|logs)/' }).Count -gt 0
     Log "Remote update found ($($changes.Count) changed paths); benchmark rerun: $needRun"
-    Invoke-GitChecked @('pull', '--ff-only', 'origin', 'main') | Out-Null
+    if ($rebased) {
+        # Rebase may leave our result commits ahead of origin/main; publish them
+        # before running tests so the next polling iteration does not repeat the rebase.
+        Invoke-GitChecked @('push', 'origin', 'main') | Out-Null
+        Log 'Rebased result commits uploaded.'
+    }
+    else {
+        Invoke-GitChecked @('pull', '--ff-only', 'origin', 'main') | Out-Null
+    }
     if (-not $needRun) {
         Log 'Only benchmark results/logs changed; synchronized without running.'
         return
