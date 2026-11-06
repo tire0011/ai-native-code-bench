@@ -151,6 +151,11 @@ def sanitize_public_log(raw):
     return text[:250000] + ("\n[TRUNCATED]\n" if len(text) > 250000 else "")
 
 
+def build_opencode_command(model, prompt):
+    return ["run", "--standalone", "--agent", "plan",
+            "--format", "json", "--model", model, prompt]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=MODEL)
@@ -185,8 +190,7 @@ def main():
         prompt = ("READ-ONLY research on a PUBLIC C# repo. Do not access other "
                   "repos, credentials or configs. Never modify files. "
                   f"Solution: {solution}. " + case["goal"])
-        command = ["run", "--standalone", "--agent", "plan",
-                   "--format", "json", "--model", args.model, prompt]
+        command = build_opencode_command(args.model, prompt)
         start = time.monotonic()
         exe = shutil.which("opencode")
         if exe:
