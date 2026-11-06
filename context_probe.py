@@ -79,6 +79,7 @@ def invoke_checked(args, cwd, timeout, label, env=None):
             "ok": False, "exit_code": None,
             "duration_s": round(time.monotonic()-started, 2),
             "error": type(exc).__name__,
+            "resources": monitor.summary() if "monitor" in locals() else None,
         }, str(exc)
 
 
