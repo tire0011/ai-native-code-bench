@@ -99,3 +99,10 @@ class ContextProbeTests(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["env"]["PYTHONIOENCODING"], "utf-8")
         self.assertEqual(run.call_args.kwargs["env"]["EXPERIMENT"], "test")
         self.assertNotIn("PYTHONIOENCODING", supplied)
+
+    def test_aider_venv_recovery_is_isolated(self):
+        from pathlib import Path
+        import context_probe
+        source = Path(context_probe.__file__).read_text(encoding="utf-8")
+        self.assertIn('[uv, "venv", "--clear", "--python", "3.12"', source)
+        self.assertIn('AIDER_ENV = TOOLS / "aider-py312-venv"', source)

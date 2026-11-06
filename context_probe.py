@@ -111,7 +111,7 @@ def prepare_aider():
     if aider.is_file():
         return {"ok": True, "cached": True}, "", aider
     status, raw = invoke_checked(
-        [uv, "venv", "--python", "3.12", "--python-preference", "only-managed", AIDER_ENV],
+        [uv, "venv", "--clear", "--python", "3.12", "--python-preference", "only-managed", AIDER_ENV],
         ROOT, 300, "Preparing Aider Python 3.12 environment...", env=env
     )
     if not status["ok"]:

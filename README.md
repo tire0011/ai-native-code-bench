@@ -49,7 +49,7 @@ results/runs/*.json + results/logs/**  (public, bounded diagnostics)
                '-- GitHub tracker Issue #2 / assistant analysis
 ```
 
-**Execution modes:** The Windows machine performs inference and indexing. A remote web assistant uses GitHub and the watcher. The local Codex desktop assistant can execute experiments directly; the watcher is currently paused during direct research. GitHub stores code and selected diagnostics.
+**Execution modes:** The Windows machine performs local inference and indexing. GitHub stores the code and selected diagnostic results. A remote web assistant uses GitHub and the watcher: it can edit GitHub files and inspect published results but **cannot directly execute the local Windows benchmark**. Our watcher must be active for automatic runs. The local Codex desktop assistant can execute experiments directly; the watcher is currently paused during direct research.
 
 ## 3. The safe public fixture
 
