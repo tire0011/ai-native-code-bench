@@ -189,7 +189,7 @@ def main():
         log(f"[{i}/{len(cases)}] Running {case['id']}")
         prompt = ("READ-ONLY research on a PUBLIC C# repo. Do not access other "
                   "repos, credentials or configs. Never modify files. "
-                  f"Solution: {solution}. " + case["goal"])
+                  f"Solution: {solution}. " + case["goal"].replace("{fixture_readme}", str(FIXTURE / "README.md")))
         command = build_opencode_command(args.model, prompt)
         start = time.monotonic()
         exe = shutil.which("opencode")
