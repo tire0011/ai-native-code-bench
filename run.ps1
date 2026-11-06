@@ -12,6 +12,10 @@ if ($LASTEXITCODE -ne 0) { throw 'Runner unit tests failed' }
 
 python -u runner.py --model $Model --cases $Cases --timeout $TimeoutSeconds
 $runExit = $LASTEXITCODE
+# Install/cache Aider and SCIP locally and publish lightweight success metrics.
+# Failures are recorded by context_probe.py without interrupting the existing benchmark.
+python -u context_probe.py
+if ($LASTEXITCODE -ne 0) { Write-Warning 'Context probe could not complete; existing benchmark results are retained.' }
 if ($NoPush) {
     Write-Host 'Upload skipped (-NoPush)'
     exit $runExit
