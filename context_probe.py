@@ -11,6 +11,7 @@ import sys
 import time
 
 from runner import ROOT, FIXTURE, fixture, log
+from context_compare import compare
 
 TOOLS = ROOT / ".tools"
 AIDER_ENV = TOOLS / "aider-venv"
@@ -24,14 +25,14 @@ def executable(directory, name):
     return directory / ("Scripts" if windows else "bin") / (name + (".exe" if windows else ""))
 
 
-def invoke_checked(args, cwd, timeout, label):
+def invoke_checked(args, cwd, timeout, label, env=None):
     log(label)
     started = time.monotonic()
     try:
         proc = subprocess.run(
             [str(x) for x in args], cwd=str(cwd), capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=timeout,
-            stdin=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL, env=env,
         )
         raw = (proc.stdout or "") + "\n" + (proc.stderr or "")
         return {
@@ -48,25 +49,47 @@ def invoke_checked(args, cwd, timeout, label):
 
 
 def prepare_aider():
-    python = executable(AIDER_ENV, "python")
-    if not python.is_file():
-        AIDER_ENV.parent.mkdir(parents=True, exist_ok=True)
-        status, raw = invoke_checked(
-            [sys.executable, "-m", "venv", AIDER_ENV], ROOT, 120,
-            "Preparing isolated Aider Python environment..."
-        )
-        if not status["ok"]:
-            return status, raw, None
-    aider = executable(AIDER_ENV, "aider")
-    if not aider.is_file():
-        status, raw = invoke_checked(
-            [python, "-m", "pip", "install", "--disable-pip-version-check", "aider-chat"],
-            ROOT, 600, "Installing Aider into isolated environment (first run only)..."
-        )
-        if not status["ok"]:
-            return status, raw, None
-    return {"ok": True, "cached": True}, "", aider
+    """Use uv with managed Python 3.12 in repo-local directories.
 
+    This avoids dependency failures from system Python 3.13+ and installs
+    nothing globally.
+    """
+    bootstrap = TOOLS / "uv-bootstrap"
+    python = executable(bootstrap, "python")
+    if not python.is_file():
+        bootstrap.parent.mkdir(parents=True, exist_ok=True)
+        status, raw = invoke_checked(
+            [sys.executable, "-m", "venv", bootstrap], ROOT, 120,
+            "Preparing isolated uv bootstrap..."
+        )
+        if not status["ok"]:
+            return status, raw, None
+    uv = executable(bootstrap, "uv")
+    if not uv.is_file():
+        status, raw = invoke_checked(
+            [python, "-m", "pip", "install", "--disable-pip-version-check", "uv"],
+            ROOT, 300, "Installing uv in isolated bootstrap..."
+        )
+        if not status["ok"]:
+            return status, raw, None
+    # uv uses a repo-local Python cache, not the system Python installation.
+    env = os.environ.copy()
+    env["UV_PYTHON_INSTALL_DIR"] = str(TOOLS / "uv-python")
+    env["UV_CACHE_DIR"] = str(TOOLS / "uv-cache")
+    aider = executable(AIDER_ENV, "aider")
+    if aider.is_file():
+        return {"ok": True, "cached": True}, "", aider
+    status, raw = invoke_checked(
+        [uv, "venv", "--python", "3.12", "--python-preference", "only-managed", AIDER_ENV],
+        ROOT, 300, "Preparing Aider Python 3.12 environment...", env=env
+    )
+    if not status["ok"]:
+        return status, raw, None
+    status, install_log = invoke_checked(
+        [uv, "pip", "install", "--python", executable(AIDER_ENV, "python"), "aider-chat"],
+        ROOT, 600, "Installing Aider with compatible Python...", env=env
+    )
+    return status, raw + "\n" + install_log, aider if status["ok"] and aider.is_file() else None
 
 def prepare_scip():
     exe = SCIP_TOOLS / ("scip-dotnet.exe" if os.name == "nt" else "scip-dotnet")
@@ -122,6 +145,8 @@ def main():
                 info["generation"] = {**status, "index_created": index_path.is_file(),
                                       "index_bytes": index_path.stat().st_size if index_path.is_file() else 0}
         result["tools"][name] = info
+        if name == "scip" and info.get("generation", {}).get("ok") and index_path.is_file():
+            result["comparison"] = compare(index_path)
         log(f"Context {name}: installed={setup.get('ok')}, generated={info.get('generation', {}).get('ok')}")
     out = ROOT / "results" / "runs" / ("context-" + stamp + ".json")
     out.parent.mkdir(parents=True, exist_ok=True)
