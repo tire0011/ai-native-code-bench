@@ -153,3 +153,10 @@ Local polling can be paused with the file `local-results/watcher.paused`. The fo
 For the foreground watcher, a stale `local-results/watcher.paused` marker from Codex Desktop is automatically cleared when launching `watch-loop.ps1` explicitly; existing installations need to pull the updated script once first. The watcher still avoids repeating tests for commits containing only result/log files.
 
 Do not assume an increasing number of model calls indicates meaningful progress. Change the failure-specific context or task decomposition before resuming a stalled arm.
+
+
+### Concurrent GitHub updates and automatic result upload
+
+The watcher and `run.ps1` now share `sync-results.ps1`. It commits only benchmark result/log files, fetches origin/main, rebases **only local result-only commits**, and retries pushes up to four times if another GitHub client pushed meanwhile. It refuses to rebase local code commits or overwrite tracked non-result changes; no force-push. If a previous run left uncommitted result files, the watcher synchronizes those safely before pulling. A genuine local code modification still requires user review.
+
+The currently running older watcher script must be restarted after updating the repository. `git status --short` identifies any local files preventing the first pull.
