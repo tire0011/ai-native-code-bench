@@ -28,9 +28,9 @@ Preserve existing public behavior, name validation, domain-event behavior and ex
 
 | Variante | Abgeschlossene Runden | Erfolg laut erster Prüfstufe | Letzte Tests bestanden | Geänderte Dateien |
 |---|---:|---|---:|---:|
-| baseline | 37 | Noch nicht | nicht ausgeführt / nicht kompiliert | 17 |
-| aider | 32 | Noch nicht | nicht ausgeführt / nicht kompiliert | 12 |
-| scip | 30 | Noch nicht | nicht ausgeführt / nicht kompiliert | 12 |
+| baseline | 40 | Noch nicht | nicht ausgeführt / nicht kompiliert | 17 |
+| aider | 36 | Noch nicht | nicht ausgeführt / nicht kompiliert | 12 |
+| scip | 34 | Noch nicht | nicht ausgeführt / nicht kompiliert | 12 |
 
 ## Korrekturen am Testrahmen
 
@@ -745,6 +745,60 @@ Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
 - [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-37-tests.log)
 - [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-37.diff)
 
+#### Runde 38
+
+- Editor: Exit `0`, 28.59 s.
+- Validierung: Exit `1`, 6.34 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchEndpointPropagation.cs`, `src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchWebStatus.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapper.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapperImpl.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`, `src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(54,77): error CS7036: There is no argument given that corresponds to the required parameter 'result' of 'SmartEnum<ContributorStatus, int>.TryFromName(string, bool, out ContributorStatus)' [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-38-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-38-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-38.diff)
+
+#### Runde 39
+
+- Editor: Exit `0`, 27.42 s.
+- Validierung: Exit `1`, 5.02 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchEndpointPropagation.cs`, `src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchWebStatus.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapper.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapperImpl.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`, `src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(54,63): error CS0117: 'ContributorStatus' does not contain a definition for 'TryFromNameAsync' [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-39-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-39-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-39.diff)
+
+#### Runde 40
+
+- Editor: Exit `0`, 27.68 s.
+- Validierung: Exit `1`, 6.17 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchEndpointPropagation.cs`, `src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchWebStatus.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapper.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapperImpl.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`, `src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(54,112): error CS1620: Argument 2 must be passed with the 'out' keyword [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-40-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-40-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/baseline/round-40.diff)
+
 ### aider
 
 Actual ContributorStatus source and installed SmartEnum XML API documentation; all arms receive identical reference.
@@ -1374,6 +1428,82 @@ Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
 - [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-36-tests.log)
 - [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-36.diff)
 
+#### Runde 37
+
+- Editor: Exit `0`, 27.51 s.
+- Validierung: Exit `1`, 5.56 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(66,8): error CS1729: 'UpdateContributorResponse' does not contain a constructor that takes 2 arguments [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(22,67): error CS0117: 'ContributorStatus' does not contain a definition for 'TryParse' [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-37-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-37-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-37.diff)
+
+#### Runde 38
+
+- Editor: Exit `0`, 42.88 s.
+- Validierung: Exit `1`, 6.71 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(66,8): error CS1729: 'UpdateContributorResponse' does not contain a constructor that takes 2 arguments [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(22,67): error CS0117: 'ContributorStatus' does not contain a definition for 'TryParse' [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-38-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-38-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-38.diff)
+
+#### Runde 39
+
+- Editor: Exit `0`, 35.67 s.
+- Validierung: Exit `1`, 4.93 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(66,8): error CS1729: 'UpdateContributorResponse' does not contain a constructor that takes 2 arguments [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(22,67): error CS0117: 'ContributorStatus' does not contain a definition for 'TryParse' [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-39-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-39-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-39.diff)
+
+#### Runde 40
+
+- Editor: Exit `0`, 27.17 s.
+- Validierung: Exit `1`, 6.01 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.cs(66,8): error CS1729: 'UpdateContributorResponse' does not contain a constructor that takes 2 arguments [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(22,67): error CS0117: 'ContributorStatus' does not contain a definition for 'TryParse' [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-40-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-40-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/aider/round-40.diff)
+
 ### scip
 
 Actual ContributorStatus source and installed SmartEnum XML API documentation; all arms receive identical reference.
@@ -1952,6 +2082,82 @@ CSC : error MSG0005: MediatorGenerator found message without any registered hand
 - [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-36-editor.log)
 - [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-36-tests.log)
 - [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-36.diff)
+
+#### Runde 37
+
+- Editor: Exit `0`, 25.19 s.
+- Validierung: Exit `1`, 6.22 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+CSC : error MSG0005: MediatorGenerator found message without any registered handler: Clean.Architecture.Core.ContributorAggregate.ContributorStatusUpdatedEvent [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(15,22): error CS0103: The name 'DataSchemaConstants' does not exist in the current context [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-37-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-37-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-37.diff)
+
+#### Runde 38
+
+- Editor: Exit `0`, 25.15 s.
+- Validierung: Exit `1`, 6.64 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+CSC : error MSG0005: MediatorGenerator found message without any registered handler: Clean.Architecture.Core.ContributorAggregate.ContributorStatusUpdatedEvent [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(15,22): error CS0103: The name 'DataSchemaConstants' does not exist in the current context [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-38-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-38-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-38.diff)
+
+#### Runde 39
+
+- Editor: Exit `0`, 21.62 s.
+- Validierung: Exit `1`, 5.64 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+CSC : error MSG0005: MediatorGenerator found message without any registered handler: Clean.Architecture.Core.ContributorAggregate.ContributorStatusUpdatedEvent [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(15,22): error CS0103: The name 'DataSchemaConstants' does not exist in the current context [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-39-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-39-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-39.diff)
+
+#### Runde 40
+
+- Editor: Exit `0`, 24.57 s.
+- Validierung: Exit `1`, 5.93 s.
+- Testzähler: `{}`.
+- Erfolg laut Prüfstufe: **False**.
+- Änderungen: `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs`, `src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs`, `src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs`, `src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs`, `src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs`, `src/Clean.Architecture.Web/Contributors/ContributorRecord.cs`, `src/Clean.Architecture.Web/Contributors/GetById.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs`, `src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs`, `src/Clean.Architecture.Web/Contributors/Update.cs`.
+
+Fehlermeldungen (Auszug; vollständiges Protokoll verlinkt):
+
+```text
+CSC : error MSG0005: MediatorGenerator found message without any registered handler: Clean.Architecture.Core.ContributorAggregate.ContributorStatusUpdatedEvent [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+<FIXTURE>\src\Clean.Architecture.Web\Contributors\Update.UpdateContributorValidator.cs(15,22): error CS0103: The name 'DataSchemaConstants' does not exist in the current context [<FIXTURE>\src\Clean.Architecture.Web\Clean.Architecture.Web.csproj]
+```
+
+- [Editorprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-40-editor.log)
+- [Prüfprotokoll](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-40-tests.log)
+- [Diff](D:/repos/ai-native-code-bench/local-results/multi-20261106T153209Z/scip/round-40.diff)
 
 ## Letzter gesonderter Funktionsaudit
 

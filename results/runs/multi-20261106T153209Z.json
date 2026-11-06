@@ -1377,6 +1377,108 @@
             "src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs"
           ],
           "success": false
+        },
+        {
+          "rejected_regression": true,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "round": 38,
+          "editor_exit": 0,
+          "editor_s": 28.59,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 6.34
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchEndpointPropagation.cs",
+            "src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchWebStatus.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapper.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapperImpl.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs",
+            "src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": true,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "round": 39,
+          "editor_exit": 0,
+          "editor_s": 27.42,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 5.02
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchEndpointPropagation.cs",
+            "src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchWebStatus.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapper.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapperImpl.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs",
+            "src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": true,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "round": 40,
+          "editor_exit": 0,
+          "editor_s": 27.68,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 6.17
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchEndpointPropagation.cs",
+            "src/Clean.Architecture.UnitTests/Core/ContributorAggregate/BenchWebStatus.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapper.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorMapperImpl.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs",
+            "src/Clean.Architecture.Web/Contributors/UpdateContributorMapper.cs"
+          ],
+          "success": false
         }
       ],
       "success": false,
@@ -2318,6 +2420,122 @@
             "src/Clean.Architecture.Web/Contributors/Update.cs"
           ],
           "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 37,
+          "editor_exit": 0,
+          "editor_s": 27.51,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 5.56
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 38,
+          "editor_exit": 0,
+          "editor_s": 42.88,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 6.71
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 39,
+          "editor_exit": 0,
+          "editor_s": 35.67,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 4.93
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 40,
+          "editor_exit": 0,
+          "editor_s": 27.17,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 6.01
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
         }
       ],
       "success": false,
@@ -3192,13 +3410,128 @@
             "src/Clean.Architecture.Web/Contributors/Update.cs"
           ],
           "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 37,
+          "editor_exit": 0,
+          "editor_s": 25.19,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 6.22
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 38,
+          "editor_exit": 0,
+          "editor_s": 25.15,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 6.64
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 39,
+          "editor_exit": 0,
+          "editor_s": 21.62,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 5.64
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
+        },
+        {
+          "rejected_regression": false,
+          "editable_files": [
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs"
+          ],
+          "round": 40,
+          "editor_exit": 0,
+          "editor_s": 24.57,
+          "validation": {
+            "exit_code": 1,
+            "duration_s": 5.93
+          },
+          "counts": {},
+          "changed_files": [
+            "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/FakeListContributorsQueryService.cs",
+            "src/Clean.Architecture.Infrastructure/Data/Queries/ListContributorsQueryService.cs",
+            "src/Clean.Architecture.UseCases/Contributors/ContributorDTO.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorCommand.cs",
+            "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+            "src/Clean.Architecture.Web/Contributors/ContributorRecord.cs",
+            "src/Clean.Architecture.Web/Contributors/GetById.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorRequest.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.UpdateContributorValidator.cs",
+            "src/Clean.Architecture.Web/Contributors/Update.cs"
+          ],
+          "success": false
         }
       ],
       "success": false,
       "directory": "local-results\\multi-20261106T153209Z\\scip",
       "additional_assistance_from_round_3": "Actual ContributorStatus source and installed SmartEnum XML API documentation; all arms receive identical reference.",
       "compiler_context_paths": [
-        "src/Clean.Architecture.Core/ContributorAggregate/ContributorStatus.cs",
         "src/Clean.Architecture.Infrastructure/Data/Config/DataSchemaConstants.cs"
       ]
     }
