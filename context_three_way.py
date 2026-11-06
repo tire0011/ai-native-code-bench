@@ -89,6 +89,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
               "context_limit_chars": MAX_CONTEXT,
               "aider_map_available": bool(map_text.strip()), "results": [],
               "status": "running"}
+    consecutive_timeouts = 0
     try:
         for target in TARGETS:
             definitions, references = ground_truth(index, target)
@@ -111,6 +112,10 @@ def compare_three_way(index, aider_map=None, timeout=150):
                     log(f"Three-way context: {target} {arm} seed={seed}")
                     row = {"target": target, "seed": seed, "arm": arm,
                            "context_chars": len(context), "scip_matches": matches}
+                    if consecutive_timeouts >= 2:
+                        row.update({"status": "skipped", "reason": "two_consecutive_ollama_timeouts"})
+                        report["results"].append(row)
+                        continue
                     monitor = None
                     try:
                         with ResourceMonitor() as monitor:
@@ -119,6 +124,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
                         row["resources"] = monitor.summary()
                         (local / f"{target}-{arm}-{seed}.txt").write_text(
                             answer, encoding="utf-8")
+                        consecutive_timeouts = 0
                         row.update({"status": "ok",
                                     "duration_s": round(time.monotonic() - started, 2),
                                     "prompt_tokens": prompt_tokens,
@@ -128,6 +134,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
                         if monitor is not None:
                             monitor.save_local_trace(local / f"{target}-{arm}-{seed}-hardware.jsonl")
                             row["resources"] = monitor.summary()
+                        consecutive_timeouts = consecutive_timeouts + 1 if isinstance(exc, TimeoutError) else 0
                         row.update({"status": "error", "error_type": type(exc).__name__,
                                     "duration_s": round(time.monotonic() - started, 2)})
                     report["results"].append(row)
