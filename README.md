@@ -63,3 +63,7 @@ Unregister-ScheduledTask -TaskName 'AI Native Code Bench Watcher' -Confirm:$fals
 ## Public diagnostic logs
 
 Each run now uploads bounded, best-effort redacted OpenCode output to `results/logs/<run-id>/<case>.log` alongside `results/runs`. Full unmodified logs stay in ignored `local-results/`. Because this is a **public GitHub repository**, never change the fixture to corporate/private code or include secrets in prompts. Automated redaction is not a security guarantee. Results and logs are pushed by `run.ps1` automatically; no manual upload required.
+
+## Tool-calling control experiment
+
+The first case, `builtin-read`, asks Qwen to invoke OpenCode's built-in `read` tool on the public fixture's README. It does not require the Roslyn MCP. If this case has zero actual tool events, diagnose local model/tool-call integration before changing Roslyn. Subsequent cases target Roslyn. The number of actual tool events (not JSON printed as text) is recorded in the result JSON.
