@@ -24,7 +24,7 @@ else {
     # Only auto-push public benchmark results/logs on our own main branch.
     $branch = (git branch --show-current).Trim()
     $remote = (git remote get-url origin).Trim()
-    if ($branch -ne 'main' -or $remote -notmatch '^(https://github\\.com/|git@github\\.com:|ssh://git@github\\.com/)tire0011/ai-native-code-bench(\\.git)?$') {
+    if ($branch -ne 'main' -or $remote -notmatch '^(https://github\.com/|git@github\.com:|ssh://git@github\.com/)tire0011/ai-native-code-bench(\.git)?$') {
         Write-Warning "No auto-push: branch=$branch, origin=$remote"
     }
     else {
