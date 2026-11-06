@@ -1,5 +1,5 @@
 param([switch]$LiveOutput)
-# Called once by Windows Task Scheduler every 5 minutes.
+# One polling iteration; usable by foreground watcher or Task Scheduler.
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 $logDir = Join-Path $PSScriptRoot 'local-results'
@@ -30,21 +30,22 @@ try {
         Log 'Tracked local changes detected; skipping pull to protect work.'
         return
     }
+    Log 'Checking GitHub for updates...'
     Invoke-GitChecked @('fetch', 'origin', 'main', '--quiet') | Out-Null
     $localHead = (Invoke-GitChecked @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
     $upstream = (Invoke-GitChecked @('rev-parse', 'origin/main') | Select-Object -First 1).Trim()
-    if ($localHead -eq $upstream) { return }
+    if ($localHead -eq $upstream) { Log 'No changes'; return }
     $base = (Invoke-GitChecked @('merge-base', 'HEAD', 'origin/main') | Select-Object -First 1).Trim()
     if ($base -ne $localHead) {
         Log 'Local main has diverged/ahead commits; refusing automatic pull.'
         return
     }
     $changes = @(Invoke-GitChecked @('diff', '--name-only', 'HEAD..origin/main', '--', '.'))
-    $needRun = @($changes | Where-Object { $_ -and $_ -notmatch '^results/runs/' }).Count -gt 0
+    $needRun = @($changes | Where-Object { $_ -and $_ -notmatch '^results/(runs|logs)/' }).Count -gt 0
     Log "Remote update found ($($changes.Count) changed paths); benchmark rerun: $needRun"
     Invoke-GitChecked @('pull', '--ff-only', 'origin', 'main') | Out-Null
     if (-not $needRun) {
-        Log 'Only benchmark results changed; synchronized without running.'
+        Log 'Only benchmark results/logs changed; synchronized without running.'
         return
     }
     Log 'Starting local Qwen benchmark.'
