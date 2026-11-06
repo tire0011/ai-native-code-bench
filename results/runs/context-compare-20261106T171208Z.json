@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T171208Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "model": "qwen2.5-coder:7b",
+  "method": "SCIP definition+references snippets",
+  "cases": {
+    "no_context": {
+      "ok": true,
+      "duration_s": 14.13,
+      "definition_path_found": false,
+      "reference_paths_found": 0,
+      "ground_truth_references": 19
+    },
+    "scip_context": {
+      "ok": true,
+      "duration_s": 3.53,
+      "definition_path_found": true,
+      "reference_paths_found": 2,
+      "ground_truth_references": 19
+    }
+  },
+  "diagnostics": {
+    "occurrences": 5114,
+    "definitions": 744,
+    "class_definitions": 102,
+    "documents": 129,
+    "target_name_occurrences": 962,
+    "example_class_names": [
+      "AppDbContext",
+      "AppDbContextExtensions",
+      "AppDbContextModelSnapshot",
+      "BaseEfRepoTestFixture",
+      "Clean_Architecture_AspireHost",
+      "Clean_Architecture_Web",
+      "Constants",
+      "Contributor",
+      "ContributorByIdSpec",
+      "ContributorConfiguration",
+      "ContributorConstructor",
+      "ContributorDeletedEvent",
+      "ContributorDeletedHandler",
+      "ContributorDto",
+      "ContributorGetById",
+      "ContributorId",
+      "ContributorIdFrom",
+      "ContributorList",
+      "ContributorListResponse",
+      "ContributorName"
+    ]
+  },
+  "index": {
+    "matched_occurrences": 59,
+    "symbols": 6,
+    "context_chars": 8834
+  },
+  "status": "complete"
+}
