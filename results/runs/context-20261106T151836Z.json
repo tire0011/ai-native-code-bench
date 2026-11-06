@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "utc": "20261106T151836Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "tools": {
+    "aider": {
+      "installation": {
+        "ok": false,
+        "exit_code": 2,
+        "duration_s": 4.92,
+        "error_category": "unknown",
+        "diagnostic_hints": [
+          "error: Failed to create virtual environment",
+          "hint: Use the `--clear` flag or set `UV_VENV_CLEAR=1` to replace the existing virtual environment"
+        ],
+        "stage": "uv_venv"
+      }
+    },
+    "scip": {
+      "installation": {
+        "ok": true,
+        "cached": true
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 43.28,
+        "error_category": null,
+        "diagnostic_hints": [],
+        "index_created": true,
+        "index_bytes": 446292
+      }
+    }
+  },
+  "comparison": {
+    "schema_version": 1,
+    "utc": "20261106T151924Z",
+    "fixture": "ardalis/CleanArchitecture",
+    "model": "qwen2.5-coder:7b",
+    "method": "SCIP definition+references snippets",
+    "cases": {
+      "no_context": {
+        "ok": true,
+        "duration_s": 0.36,
+        "definition_path_found": false,
+        "reference_paths_found": 0,
+        "ground_truth_references": 19
+      },
+      "scip_context": {
+        "ok": true,
+        "duration_s": 11.37,
+        "definition_path_found": true,
+        "reference_paths_found": 5,
+        "ground_truth_references": 19
+      }
+    },
+    "diagnostics": {
+      "occurrences": 5114,
+      "definitions": 744,
+      "class_definitions": 102,
+      "documents": 129,
+      "target_name_occurrences": 962,
+      "example_class_names": [
+        "AppDbContext",
+        "AppDbContextExtensions",
+        "AppDbContextModelSnapshot",
+        "BaseEfRepoTestFixture",
+        "Clean_Architecture_AspireHost",
+        "Clean_Architecture_Web",
+        "Constants",
+        "Contributor",
+        "ContributorByIdSpec",
+        "ContributorConfiguration",
+        "ContributorConstructor",
+        "ContributorDeletedEvent",
+        "ContributorDeletedHandler",
+        "ContributorDto",
+        "ContributorGetById",
+        "ContributorId",
+        "ContributorIdFrom",
+        "ContributorList",
+        "ContributorListResponse",
+        "ContributorName"
+      ]
+    },
+    "index": {
+      "matched_occurrences": 59,
+      "symbols": 6,
+      "context_chars": 8834
+    },
+    "status": "complete"
+  }
+}
