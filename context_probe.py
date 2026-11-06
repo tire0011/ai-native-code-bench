@@ -35,10 +35,26 @@ def invoke_checked(args, cwd, timeout, label, env=None):
             stdin=subprocess.DEVNULL, env=env,
         )
         raw = (proc.stdout or "") + "\n" + (proc.stderr or "")
+        category = None
+        if proc.returncode:
+            lower = raw.lower()
+            if "requires-python" in lower or "requires python" in lower:
+                category = "python_version_incompatible"
+            elif "no matching distribution" in lower or "resolution failed" in lower:
+                category = "dependency_resolution"
+            elif "certificate" in lower or "tls" in lower or "ssl" in lower:
+                category = "tls_or_certificate"
+            elif "timeout" in lower or "connection" in lower:
+                category = "network"
+            elif "permission denied" in lower or "access is denied" in lower:
+                category = "permission"
+            else:
+                category = "unknown"
         return {
             "ok": proc.returncode == 0,
             "exit_code": proc.returncode,
             "duration_s": round(time.monotonic()-started, 2),
+            "error_category": category,
         }, raw
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {
