@@ -37,10 +37,32 @@ try {
     if ($localHead -eq $upstream) { Log 'No changes'; return }
     $base = (Invoke-GitChecked @('merge-base', 'HEAD', 'origin/main') | Select-Object -First 1).Trim()
     if ($base -ne $localHead) {
-        Log 'Local main has diverged/ahead commits; refusing automatic pull.'
-        return
+        # Safe auto-rebase only when EVERY local-only commit changes benchmark result files.
+        # User code commits and all uncommitted tracked files are never rebased.
+        $localCommits = @(Invoke-GitChecked @('rev-list', 'origin/main..HEAD') | Where-Object { $_ })
+        $safe = $localCommits.Count -gt 0
+        foreach ($commit in $localCommits) {
+            $paths = @(Invoke-GitChecked @('diff-tree', '--no-commit-id', '--name-only', '-r', $commit) | Where-Object { $_ })
+            if ($paths.Count -eq 0 -or @($paths | Where-Object { $_ -notmatch '^results/(runs|logs)/' }).Count -gt 0) {
+                $safe = $false
+                break
+            }
+        }
+        if (-not $safe) {
+            Log 'Local-only commits include non-result files; refusing automatic rebase.'
+            return
+        }
+        Log "Rebasing $($localCommits.Count) local result-only commit(s) onto origin/main..."
+        $rebaseOutput = & git.exe rebase origin/main 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Log 'Rebase conflicted; aborting to preserve original local commits.'
+            & git.exe rebase --abort 2>&1 | Out-Null
+            return
+        }
+        $localHead = (Invoke-GitChecked @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
+        Log 'Result-only commits safely rebased.'
     }
-    $changes = @(Invoke-GitChecked @('diff', '--name-only', 'HEAD..origin/main', '--', '.'))
+    $changes = @(Invoke-GitChecked @('diff', '--name-only', "$base..origin/main", '--', '.'))
     $needRun = @($changes | Where-Object { $_ -and $_ -notmatch '^results/(runs|logs)/' }).Count -gt 0
     Log "Remote update found ($($changes.Count) changed paths); benchmark rerun: $needRun"
     Invoke-GitChecked @('pull', '--ff-only', 'origin', 'main') | Out-Null
