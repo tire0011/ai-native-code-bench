@@ -61,8 +61,26 @@ class RunnerTests(unittest.TestCase):
             hits = list(occurrences(index))
             self.assertEqual(len(hits), 2)
             self.assertEqual(sum(d for _, _, _, d in hits), 1)
-            context, count, symbols = extract_symbol_context(index, root)
+            context, count, symbols = extract_symbol_context(index, root, target="BaseEntity")
             self.assertEqual(count, 2)
             self.assertEqual(symbols, 1)
             self.assertIn("BaseEntity.cs", context)
             self.assertIn("Consumer.cs", context)
+
+    def test_scip_index_diagnostics(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from scip_context import index_diagnostics
+        def chunk(n, value):
+            size = len(value)
+            return bytes([n * 8 + 2, size]) + value
+        symbol = b"example/pkg/Contributor#"
+        occurrence = chunk(1, bytes([0, 0, 3])) + chunk(2, symbol) + bytes([24, 1])
+        doc = chunk(1, b"Contributor.cs") + chunk(2, occurrence)
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / "index.scip"
+            path.write_bytes(chunk(2, doc))
+            report = index_diagnostics(path)
+            self.assertEqual(report["definitions"], 1)
+            self.assertEqual(report["target_name_occurrences"], 1)
+            self.assertGreaterEqual(report["documents"], 1)
