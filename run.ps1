@@ -17,17 +17,17 @@ if ($NoPush) {
     exit $runExit
 }
 
-# Only auto-push result summaries on our own main branch.
+# Only auto-push public benchmark results/logs on our own main branch.
 $branch = (git branch --show-current).Trim()
 $remote = (git remote get-url origin).Trim()
 if ($branch -ne 'main' -or $remote -notmatch '^(https://github\.com/|git@github\.com:|ssh://git@github\.com/)tire0011/ai-native-code-bench(\.git)?$') {
     Write-Warning "No auto-push: branch=$branch, origin=$remote"
     exit $runExit
 }
-$changed = @(git status --porcelain -- results/runs)
+$changed = @(git status --porcelain -- results/runs results/logs)
 if ($changed.Count -gt 0) {
     Write-Host "[$(Get-Date -Format HH:mm:ss)] Commit results..."
-    git add -- results/runs
+    git add -- results/runs results/logs
     if ($LASTEXITCODE -ne 0) { throw 'git add failed' }
     git commit -m "Benchmark run $Model $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
     if ($LASTEXITCODE -ne 0) { throw 'git commit failed' }
