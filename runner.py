@@ -131,6 +131,26 @@ def invoke(cmd, target, timeout):
                 output.write(line)
     return "".join(lines), process.returncode, timed_out, None
 
+def sanitize_public_log(raw):
+    """Best-effort removal of common secrets and machine-specific paths.
+
+    Published logs remain PUBLIC. Use only with the public benchmark fixture.
+    """
+    import os
+    text = raw
+    for value in [str(ROOT), str(FIXTURE), str(Path.home())]:
+        if value:
+            text = re.sub(re.escape(value), "<LOCAL_PATH>", text, flags=re.I)
+    # Strip common credential-bearing headers, environment assignments and JWTs.
+    text = re.sub(r'(?i)(Authorization\s*[:=]\s*Bearer\s+)[^\s"\\]+',
+                  r'\1<REDACTED>', text)
+    text = re.sub(r'(?i)(["\']?(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)["\']?\s*[:=]\s*["\']?)[^\s"\'\\,}]+',
+                  r'\1<REDACTED>', text)
+    text = re.sub(r'\beyJ[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b',
+                  '<REDACTED_JWT>', text)
+    return text[:250000] + ("\n[TRUNCATED]\n" if len(text) > 250000 else "")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=MODEL)
@@ -156,6 +176,8 @@ def main():
     published = ROOT / "results" / "runs"
     local.mkdir(parents=True, exist_ok=True)
     published.mkdir(parents=True, exist_ok=True)
+    public_logs = ROOT / "results" / "logs" / run_id
+    public_logs.mkdir(parents=True, exist_ok=True)
     log(f"Model: {args.model}; fixture commit: {revision[:12]}")
     results = []
     for i, case in enumerate(cases, 1):
@@ -173,6 +195,10 @@ def main():
         else:
             raw, code, timeout, error = "", None, False, "opencode_not_in_PATH"
             log("OpenCode missing from PATH")
+        # Keep full output locally; publish a bounded, best-effort redacted copy.
+        # Never publish other sources than the controlled public fixture.
+        (public_logs / (case["id"] + ".log")).write_text(
+            sanitize_public_log(raw), encoding="utf-8")
         metrics = parse_events(raw)
         results.append({"case": case["id"], "model": args.model,
                         "duration_s": round(time.monotonic()-start, 2),
@@ -186,7 +212,7 @@ def main():
               "solution_name": Path(solution).name, "results": results}
     path = published / f"{run_id}.json"
     path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    log(f"Summary: {path.relative_to(ROOT)}; raw log: {local.relative_to(ROOT)}")
+    log(f"Summary: {path.relative_to(ROOT)}; public logs: {public_logs.relative_to(ROOT)}; full local log: {local.relative_to(ROOT)}")
     return 0 if all(r["exit_code"] == 0 and not r["timeout"] for r in results) else 1
 
 if __name__ == "__main__":
