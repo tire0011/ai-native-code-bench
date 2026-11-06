@@ -152,7 +152,7 @@ def sanitize_public_log(raw):
 
 
 def build_opencode_command(model, prompt):
-    return ["run", "--standalone", "--agent", "plan",
+    return ["run", "--standalone", "--agent", "build",
             "--format", "json", "--model", model, prompt]
 
 
