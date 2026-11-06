@@ -43,14 +43,14 @@ This project is experimental. Results depend on local OpenCode, Ollama, Roslyn a
 
 ## Automatic runs when the repository changes
 
-One-time setup on your Windows PC (PowerShell, while signed in):
+Install or update the scheduled task on your Windows PC (PowerShell, while signed in):
 
 ```powershell
 git pull
 .\install-watcher.ps1
 ```
 
-Windows Task Scheduler checks `origin/main` **every five minutes**. If benchmark code, configuration or test cases changed, it fast-forwards the local checkout and automatically starts `run.ps1` with local Qwen, including the normal results-only commit/push. If only files inside `results/runs/` changed, it pulls but does **not** rerun (prevents feedback loops). Uncommitted tracked changes or diverged branches are never overwritten. The watcher does not start concurrent runs.
+Windows Task Scheduler launches a two-check cycle every minute (30 seconds apart) to check `origin/main` **about every 30 seconds**. If benchmark code, configuration or test cases changed, it fast-forwards the local checkout and automatically starts `run.ps1` with local Qwen, including the normal results-only commit/push. If only files inside `results/runs/` changed, it pulls but does **not** rerun (prevents feedback loops). Uncommitted tracked changes or diverged branches are never overwritten. The watcher does not start concurrent runs.
 
 Logs remain on your PC: `local-results/watch.log` (watch status) and `local-results/watch-run-*.log` (test output). The task runs in your signed-in Windows session, so the PC must be on, your user must be logged in, and Ollama/OpenCode must be available.
 
