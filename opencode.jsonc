@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "roslyn": {
+        "type": "local",
+        "command": ["dnx", "RoslynCodeLens.Mcp", "--yes"],
+        "cwd": ".",
+        "timeout": {
+          "startup": 120000,
+          "catalog": 120000,
+          "execution": 300000
+        }
+      }
+    }
+  }
+}

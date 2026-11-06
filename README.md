@@ -1,157 +1,42 @@
-# AI-Native Code Bench
+# Local Coding Context Benchmark
 
-[![Tests](https://github.com/tire0011/ai-native-code-bench/actions/workflows/tests.yml/badge.svg)](https://github.com/tire0011/ai-native-code-bench/actions/workflows/tests.yml)
+Test how well small local models interact with **Roslyn MCP** through **OpenCode v2** on an independent public C# codebase. No corporate source code is needed.
 
-Open, reproducible experiments on whether machine-oriented programming
-representations help small language models generate **correct programs with
-less total compute**.
+## One-time setup (Windows / PowerShell)
 
-This is an independent community research project, not affiliated with Tacit,
-Edict, OpenEuroLLM, or any model provider. Contributions and negative results
-are welcome.
-
-## Why?
-
-Traditional languages prioritize human authorship. [Tacit](https://github.com/weetster/tacit)
-explores canonical compact program representations, while
-[Edict](https://github.com/Sowiedu/Edict) provides a JSON AST with typed compiler
-feedback, contracts, and WASM compilation. We want to measure what helps actual
-code-generation success: syntax, structured feedback, constrained generation,
-model training, or some combination.
-
-Longer-term questions include latent/vector-based program search and
-interoperability across independent open-weight models. Neither Tacit nor Edict
-is currently a neural latent-vector programming language.
-
-Read the [research foundation](docs/research.md) and
-[evaluation methodology](docs/methodology.md).
-
-## Status
-
-**Milestone 0: smoke-test harness.** The first three tasks verify that the
-Ollama/Python and Ollama/Edict paths can generate, compile, execute and produce
-machine-readable results. They are intentionally trivial and **must not be
-used for performance claims**. A controlled, held-out benchmark follows.
-
-## Quick start (PowerShell, Windows)
-
-Prerequisites: Python 3.11+, Node.js/npm, Ollama, Docker Desktop (running).
+Requirements: Git, Python 3.11+, OpenCode v2, .NET 10 SDK (required by Roslyn CodeLens MCP), and a configured local model. The repository contains its own **project-local** `opencode.jsonc`; it does not overwrite your global providers or models.
 
 ```powershell
-git clone https://github.com/tire0011/ai-native-code-bench.git
-Set-Location ai-native-code-bench
-ollama pull qwen2.5-coder:7b
-npm install
-docker pull python:3.12-alpine
-python -m unittest discover -s tests -v
-python -m bench --model qwen2.5-coder:7b --mode both
+ git clone https://github.com/tire0011/ai-native-code-bench.git
+ Set-Location ai-native-code-bench
+ .\run.ps1 -Model 'ollama/qwen2.5-coder:7b'
 ```
 
-The runner uses Ollama at `http://127.0.0.1:11434`. Change the endpoint with
-`--endpoint` if necessary. JSONL results go to `results/smoke.jsonl` and include
-all generated artifacts and failures. The directory is gitignored by default.
-Edict defaults to two additional compiler-feedback repair attempts if the
-initial AST is invalid. Every generation (including failures) contributes to
-the reported tokens and duration. For a first-attempt-only run, use:
+Replace the model ID with the exact ID shown by `opencode models`. To compare a second model, run `./run.ps1 -Model 'YOUR_PROVIDER/YOUR_MODEL'` in a fresh invocation. The script automatically clones [ardalis/CleanArchitecture](https://github.com/ardalis/CleanArchitecture) into ignored `workspaces/` and discovers its `.sln` or `.slnx`.
+
+## Submit results
 
 ```powershell
-python -m bench --mode edict --max-edict-repairs 0
+ git add results/runs
+ git commit -m 'Add local context benchmark results'
+ git push
 ```
 
-### Compare Edict prompting approaches
+Run artifacts with complete raw model responses and tool payloads are retained under **ignored** `local-results/`, never staged automatically. Published JSON contains only timing, model ID, tool names and counts, basic completion status, and the public fixture commit SHA. Review before pushing. A model that merely prints JSON tool-call text is **not** counted as actually invoking a tool.
 
-Run all three variants using the same Ollama model, tasks and decoding settings:
+## What is measured
+
+Three independently executed prompts: MCP discovery/solution loading, class-symbol lookup, and reference discovery. A tool invocation is counted only when an OpenCode JSON event records a tool call; response text is not a tool call. Roslyn-specific calls are distinguished from other OpenCode tools. This first milestone assesses **tool execution reliability**, not code-change correctness or semantic understanding.
 
 ```powershell
-python -m bench --mode edict --edict-prompt all --output results/edict-prompts.jsonl
+ python -m unittest discover -s tests -v
+ .\run.ps1 -Model 'ollama/qwen2.5-coder:7b' -Cases 'load,find-symbol'
 ```
 
-| Profile | Context given to the model |
-| --- | --- |
-| `baseline` | Original short instructions and two small AST examples (unchanged) |
-| `official` | `edict_schema` and `edict_examples` fetched from the installed Edict MCP server, with a deterministic 8,000-character excerpt budget |
-| `compact` | Short Edict authoring guide covering JSON node shapes, `toString`, bindings and common false assumptions |
+### Notes
 
-Use `--edict-prompt official` or `--edict-prompt compact` for individual runs.
-`--edict-doc-chars 12000` changes the total excerpt budget, but can exceed
-the effective context budget of smaller Ollama models. The JSONL output records
-the profile, all model tokens including retries, model time, wall-clock time,
-and a SHA-256 of the full installed documentation sources for the `official`
-profile. The schema/examples are excerpted: this is *documentation-assisted
-prompting*, not a claim that the complete schema fits in the context window.
-
-These three tasks remain **integration smoke tests**, not reliable accuracy
-statistics. Compare both success and total token cost, not only pass rates.
-
-Repeated Edict AST node IDs are deterministically renamed before compilation;
-the original model output and each normalization are preserved in the JSONL
-record. This is a *tooling intervention*, not evidence that the model generated
-valid Edict unaided. WASM instantiation errors are reported separately rather
-than passed back to the model as if they were AST errors.
-
-For an initial generation-only test without executing any generated program:
-
-```powershell
-python -m bench --mode both --no-execute
-```
-
-To test only one arm:
-
-```powershell
-python -m bench --mode edict
-python -m bench --mode python
-```
-
-Edict version `1.23.2` is pinned in `package.json`. Its MCP server is spawned
-locally via `npx --no-install edict-lang` and queried for tool input schemas.
-An initial Windows/Ollama run confirmed `factorial-6` produces `720` after
-compiler-guided repair. Other smoke tasks still expose generation errors and
-an invalid WASM binary, so **Edict execution is not yet fully validated**.
-
-### Diagnose an Edict WASM failure
-
-The repository includes a sanitized, real model-generated AST that passed
-Edict 1.23.2 compilation but failed WASM validation (`i32.store` stack
-underflow). To replay it **without Ollama or another model call**:
-
-```powershell
-python -m bench.repro
-```
-
-Or replay the most recent compiled AST for a task in your own result file:
-
-```powershell
-python -m bench.repro --input results/smoke.jsonl --task even-sum-20
-```
-
-The diagnostic runs four independent cases: original AST, original without
-the string expression, without the block, and without either. It reports
-compiler errors separately from WASM execution errors, to help isolate an
-Edict code-generation problem. The modified variants **do not preserve program
-semantics** and their outputs must not be scored as task successes. The original
-AST itself contains an erroneous assumption that a `block` repeats like a loop;
-even valid WASM would not establish that the model solved the task.
-
-## Safety
-
-**Never execute untrusted generated code directly on your host.** The Python
-runner requires Docker and uses a read-only container with no network access,
-dropped Linux capabilities and time/resource limits. Docker is not a perfect
-sandbox; for untrusted models or adversarial code, use a disposable VM.
-Edict WASM host capabilities must be independently reviewed before extending
-the runner to filesystem/network access.
-
-Do not run private corporate code or publish credentials in benchmark results.
-
-## Roadmap
-
-- [x] Independent, open research framing and initial local harness
-- [x] Ollama model driver with token/time accounting
-- [x] Python container runner and Edict MCP client
-- [ ] Verify both execution paths with live Qwen2.5-Coder-7B on Windows
-- [ ] Held-out input/output oracles and equivalent language coverage
-- [ ] Replicated runs, reporting with uncertainty, additional open-weight models
-- [ ] Tacit compact-view baseline and structured Python-edit control
-- [ ] Latent program search feasibility study
-
-MIT-licensed. See [LICENSE](LICENSE).
+* Roslyn CodeLens has shown slow startup when automatically loading large solutions. The MCP starts in this benchmark's root directory, **not** in the fixture; each prompt asks for an explicit background solution load.
+* The runner records the fixture Git SHA to make comparisons reproducible. It does not automatically reset an existing fixture clone; remove `workspaces/CleanArchitecture` to re-clone the current upstream version.
+* Models/providers may differ in their tool support. If a tool does not exist in the catalog, record the failure instead of inventing a call.
+* No automatic code execution/build/fixes yet. OpenCode runs in read-oriented `plan` mode. The benchmark does not attempt to upload workspace files.
+* Do not run the benchmark from a private source directory; do not publish raw logs or local model credentials.
