@@ -160,3 +160,11 @@ Do not assume an increasing number of model calls indicates meaningful progress.
 The watcher and `run.ps1` now share `sync-results.ps1`. It commits only benchmark result/log files, fetches origin/main, rebases **only local result-only commits**, and retries pushes up to four times if another GitHub client pushed meanwhile. It refuses to rebase local code commits or overwrite tracked non-result changes; no force-push. If a previous run left uncommitted result files, the watcher synchronizes those safely before pulling. A genuine local code modification still requires user review.
 
 The currently running older watcher script must be restarted after updating the repository. `git status --short` identifies any local files preventing the first pull.
+
+## Controlled three-way Qwen context comparison
+
+The normal watcher-triggered `run.ps1` now runs `context_probe.py`, which generates a fresh SCIP index and an Aider repository map (when Aider is available). Then `context_three_way.py` asks **the same repository-symbol lookup question** under three conditions: no context, up to 8,000 characters of Aider map, or up to 8,000 characters of SCIP-selected definition/reference snippets. Two symbols (`Contributor`, `ContributorStatus`) and two fixed seeds (42, 43) yield up to **12 model responses**. Ollama runs the same Qwen2.5-Coder:7B, temperature 0, context 8192 and generation limit 512 for all arms.
+
+Metrics are published as `results/runs/context-three-way-*.json`. Scoring checks exact repository-relative paths, duplicates, unexpected paths, output format, durations and Ollama token counts. **No model answers or map text are published.** The baseline has less prompt context by design; context byte counts and prompt tokens are recorded, so this is a context-availability comparison, **not an equal-token ablation**. Two symbols and two seeds are an initial smoke test, not a statistically robust general ranking. If Aider is unavailable the arm is explicitly marked missing, never replaced by fabricated data.
+
+This is a **read-only symbol lookup experiment**. The separate `multi_bench.py` C# code-edit test remains explicitly opt-in and is never launched by the watcher.
