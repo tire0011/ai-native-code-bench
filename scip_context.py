@@ -73,3 +73,28 @@ def occurrences(path):
         if relative.endswith(".cs"):
             for symbol, line, definition in found:
                 yield relative, symbol, line, definition
+
+
+def extract_symbol_context(index, root, target="BaseEntity", limit=9000):
+    """Return snippets for exact SCIP symbol matches, preferring definitions."""
+    root = Path(root).resolve()
+    all_hits = list(occurrences(index))
+    target_symbols = {symbol for _, symbol, _, defined in all_hits
+                      if defined and symbol.endswith((target + "#", target + "."))}
+    matches = [(path, symbol, line, defined) for path, symbol, line, defined in all_hits
+               if symbol in target_symbols]
+    matches.sort(key=lambda hit: (not hit[3], hit[0], hit[2]))
+    parts, remaining = [], limit
+    for path, symbol, line, defined in matches:
+        file = (root / path).resolve()
+        if root not in file.parents or not file.is_file():
+            continue
+        source = file.read_text(encoding="utf-8", errors="replace").splitlines()
+        start, end = max(0, line - 5), min(len(source), line + 7)
+        snippet = "\n".join(f"{i + 1}: {source[i]}" for i in range(start, end))
+        piece = f"### {path}:{line + 1} ({'definition' if defined else 'reference'})\n{snippet}\n"
+        if len(piece) > remaining:
+            break
+        parts.append(piece)
+        remaining -= len(piece)
+    return "\n".join(parts), len(matches), len(target_symbols)
