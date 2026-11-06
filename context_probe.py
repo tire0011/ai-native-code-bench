@@ -13,6 +13,7 @@ import re
 
 from runner import ROOT, FIXTURE, fixture, log
 from context_three_way import compare_three_way
+from resource_monitor import ResourceMonitor
 
 TOOLS = ROOT / ".tools"
 AIDER_ENV = TOOLS / "aider-py312-venv"
@@ -32,11 +33,12 @@ def invoke_checked(args, cwd, timeout, label, env=None):
     env = dict(os.environ if env is None else env)
     env["PYTHONIOENCODING"] = "utf-8"
     try:
-        proc = subprocess.run(
-            [str(x) for x in args], cwd=str(cwd), capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=timeout,
-            stdin=subprocess.DEVNULL, env=env,
-        )
+        with ResourceMonitor() as monitor:
+            proc = subprocess.run(
+                [str(x) for x in args], cwd=str(cwd), capture_output=True, text=True,
+                encoding="utf-8", errors="replace", timeout=timeout,
+                stdin=subprocess.DEVNULL, env=env,
+            )
         raw = (proc.stdout or "") + "\n" + (proc.stderr or "")
         category = None
         if proc.returncode:
@@ -70,6 +72,7 @@ def invoke_checked(args, cwd, timeout, label, env=None):
             "duration_s": round(time.monotonic()-started, 2),
             "error_category": category,
             "diagnostic_hints": hints,
+            "resources": monitor.summary(),
         }, raw
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {
@@ -161,7 +164,8 @@ def main():
             if name == "aider":
                 command = [exe, "--show-repo-map", "--map-tokens", str(args.map_tokens),
                            "--model", "ollama/qwen2.5-coder:7b",
-                           "--no-auto-commits", "--yes", "--no-pretty"]
+                           "--no-auto-commits", "--yes", "--no-pretty",
+                           "--no-browser", "--no-show-model-warnings", "--no-detect-urls"]
                 status, raw = invoke_checked(command, FIXTURE, 240, "Generating Aider repository map...")
                 (logs / "aider-map.txt").write_text(raw[:MAX_LOG], encoding="utf-8")
                 info["generation"] = {**status, "characters": len(raw),
