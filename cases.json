@@ -1,5 +1,9 @@
 [
   {
+    "id": "builtin-read",
+    "goal": "Execute the built-in OpenCode read tool NOW to read the README.md file from the PUBLIC fixture repository. Use the real file path in this prompt: {fixture_readme}. This is a tool execution test: do not provide a plan, JSON tool-call example, instructions, or a question. Once the actual read tool finishes, report only the README heading. If you cannot call the read tool, state that clearly."
+  },
+  {
     "id": "load",
     "goal": "Use the available Roslyn MCP tools to load the public solution using the background loading option (if supported) and report whether a real MCP tool call succeeded. Do not write example tool-call JSON. Do not change any files."
   },
