@@ -106,3 +106,13 @@ class ContextProbeTests(unittest.TestCase):
         source = Path(context_probe.__file__).read_text(encoding="utf-8")
         self.assertIn('[uv, "venv", "--clear", "--python", "3.12"', source)
         self.assertIn('AIDER_ENV = TOOLS / "aider-py312-venv"', source)
+
+    def test_multi_bench_has_bounded_rounds_and_checkpoints(self):
+        from pathlib import Path
+        import multi_bench
+        content = Path(multi_bench.__file__).read_text(encoding="utf-8")
+        self.assertIn("MULTI_MAX_NEW_ROUNDS", content)
+        self.assertIn("MULTI_STALE_LIMIT", content)
+        self.assertIn("round_number < stop_after", content)
+        self.assertIn("best-production.zip", content)
+        self.assertIn("needs_review", content)
