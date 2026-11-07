@@ -14,6 +14,7 @@ import urllib.request
 from runner import FIXTURE, ROOT, log
 from scip_context import extract_symbol_context, occurrences
 from resource_monitor import ResourceMonitor
+from ollama_diagnostics import ollama_diagnostics
 
 MODEL = os.environ.get("CONTEXT_MODEL", "qwen2.5-coder:7b")
 TARGETS = ("Contributor", "ContributorStatus")
@@ -70,7 +71,7 @@ def generate(prompt, seed, timeout):
                                      headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(request, timeout=timeout) as response:
         data = json.load(response)
-    return data.get("response", ""), data.get("prompt_eval_count"), data.get("eval_count")
+    return data.get("response", ""), data.get("prompt_eval_count"), data.get("eval_count"), {key: data.get(key) for key in ("total_duration", "load_duration", "prompt_eval_duration", "eval_duration") if key in data}
 
 
 def compare_three_way(index, aider_map=None, timeout=150):
@@ -119,7 +120,7 @@ def compare_three_way(index, aider_map=None, timeout=150):
                     monitor = None
                     try:
                         with ResourceMonitor() as monitor:
-                            answer, prompt_tokens, output_tokens = generate(prompt, seed, timeout)
+                            answer, prompt_tokens, output_tokens, timings = generate(prompt, seed, timeout)
                         monitor.save_local_trace(local / f"{target}-{arm}-{seed}-hardware.jsonl")
                         row["resources"] = monitor.summary()
                         (local / f"{target}-{arm}-{seed}.txt").write_text(
@@ -129,12 +130,14 @@ def compare_three_way(index, aider_map=None, timeout=150):
                                     "duration_s": round(time.monotonic() - started, 2),
                                     "prompt_tokens": prompt_tokens,
                                     "output_tokens": output_tokens,
+                                    "ollama_timings_ns": timings,
                                     **score_answer(answer, definitions, references)})
                     except (OSError, TimeoutError, urllib.error.URLError, ValueError) as exc:
                         if monitor is not None:
                             monitor.save_local_trace(local / f"{target}-{arm}-{seed}-hardware.jsonl")
                             row["resources"] = monitor.summary()
                         consecutive_timeouts = consecutive_timeouts + 1 if isinstance(exc, TimeoutError) else 0
+                        row["ollama_diagnostics"] = ollama_diagnostics(local / "ollama-server-logs" / f"{target}-{arm}-{seed}")
                         row.update({"status": "error", "error_type": type(exc).__name__,
                                     "duration_s": round(time.monotonic() - started, 2)})
                     report["results"].append(row)
