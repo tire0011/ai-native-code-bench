@@ -1,18 +1,18 @@
 [
   {
     "id": "builtin-read",
-    "goal": "Execute the built-in OpenCode read tool NOW to read the README.md file from the PUBLIC fixture repository. Use the real file path in this prompt: {fixture_readme}. This is a tool execution test: do not provide a plan, JSON tool-call example, instructions, or a question. Once the actual read tool finishes, report only the README heading. If you cannot call the read tool, state that clearly."
+    "goal": "Call the built-in OpenCode read tool NOW on this exact file: {fixture_readme}. Do not use shell, subagents, or any other tool. After that one read call succeeds, report only the file's top-level Markdown heading. Do not provide a plan, example, instructions, options, or a question."
   },
   {
     "id": "load",
-    "goal": "Use the available Roslyn MCP tools to load the public solution using the background loading option (if supported) and report whether a real MCP tool call succeeded. Do not write example tool-call JSON. Do not change any files."
+    "goal": "Call the actual direct roslyn_load_solution tool NOW with path set to the exact {solution} value and background=false. Use synchronous loading for this small fixture. This is a .slnx path: do not change it to .sln, do not shorten it, and do not read or summarize the solution file first. Do not use shell or subagents. Report only the real tool result; do not give next-step options."
   },
   {
     "id": "find-symbol",
-    "goal": "Use Roslyn MCP to load the public solution in the background, then locate the definition of the C# symbol BaseEntity (or report that it is not found). Make actual tool calls. Do not write pseudocode. Do not modify files."
+    "goal": "Use direct Roslyn tools, not subagents. Ensure {solution} is loaded with roslyn_load_solution using that exact path if it is not already active. Then call roslyn_go_to_definition directly with symbol=BaseEntity and report its definition or the real not-found result. A successful roslyn_list_solutions call alone does NOT complete this task; roslyn_go_to_definition is required. Do not glob/read project files as a substitute and do not ask what to analyze next."
   },
   {
     "id": "find-references",
-    "goal": "Use Roslyn MCP to load the public solution in the background, locate the C# symbol BaseEntity, and request its references with actual tools. If loading is still in progress, poll the tool status if available. Do not invent results or modify files."
+    "goal": "Use direct Roslyn tools, not subagents. Ensure {solution} is loaded with roslyn_load_solution using that exact path if it is not already active. Locate BaseEntity with roslyn_go_to_definition, then call roslyn_find_references with symbol=BaseEntity. The actual roslyn_find_references call is required even when the result is empty or the symbol is not found. Do not merely read/summarize the solution file, do not provide a usage guide, and do not ask for another task."
   }
 ]

@@ -3,6 +3,7 @@
 import argparse
 import datetime as dt
 import json
+import os
 from pathlib import Path
 import queue
 import re
@@ -15,6 +16,12 @@ import time
 ROOT = Path(__file__).resolve().parent
 FIXTURE = ROOT / "workspaces" / "CleanArchitecture"
 MODEL = "ollama/qwen2.5-coder:7b"
+REQUIRED_TOOLS = {
+    "builtin-read": {"read"},
+    "load": {"roslyn_load_solution"},
+    "find-symbol": {"roslyn_go_to_definition"},
+    "find-references": {"roslyn_find_references"},
+}
 
 def log(msg):
     print(f"[{dt.datetime.now().astimezone():%H:%M:%S}] {msg}", flush=True)
@@ -53,7 +60,7 @@ def tool_name(event):
     return name if isinstance(name, str) and re.fullmatch(r"[\w.:-]{1,120}", name) else None
 
 def parse_events(raw):
-    counts, events, errors = {}, 0, 0
+    counts, successful, failed, events, errors = {}, {}, {}, 0, 0
     for line in raw.splitlines():
         evt = parse_event(line)
         if evt is None:
@@ -62,18 +69,51 @@ def parse_events(raw):
         name = tool_name(evt)
         if name:
             counts[name] = counts.get(name, 0) + 1
+            part = evt.get("part") or evt.get("data") or {}
+            state = part.get("state") if isinstance(part, dict) else None
+            metadata = state.get("metadata") if isinstance(state, dict) else None
+            details = metadata.get("metadata") if isinstance(metadata, dict) else None
+            tool_failed = ((isinstance(state, dict) and state.get("status") == "error") or
+                           (isinstance(details, dict) and details.get("error") is True))
+            if tool_failed:
+                failed[name] = failed.get(name, 0) + 1
+                errors += 1
+            else:
+                successful[name] = successful.get(name, 0) + 1
         if evt.get("type") in ("error", "tool_error"):
             errors += 1
     return {"events": events, "tool_calls": counts,
             "tool_calls_total": sum(counts.values()),
+            "successful_tool_calls": successful,
+            "successful_roslyn_calls": sum(v for k, v in successful.items() if "roslyn" in k.lower()),
+            "failed_tool_calls": failed,
             "roslyn_calls": sum(v for k, v in counts.items() if "roslyn" in k.lower()),
             "error_events": errors}
 
-def invoke(cmd, target, timeout):
+
+def required_tools_succeeded(case_id, metrics):
+    required = REQUIRED_TOOLS.get(case_id, set())
+    return all(metrics["successful_tool_calls"].get(name, 0) > 0 for name in required)
+
+def terminate_process_tree(process):
+    """Kill a timed-out CLI and all of its children on Windows."""
+    if os.name == "nt":
+        try:
+            stopped = subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                capture_output=True, timeout=10)
+            if stopped.returncode == 0:
+                return
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    process.kill()
+
+
+def invoke(cmd, target, timeout, cwd=ROOT):
     """Stream command output to local ignored log, emit progress without raw content."""
     messages = queue.Queue()
     try:
-        process = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE,
+        process = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, text=True,
                                    encoding="utf-8", errors="replace", bufsize=1)
     except OSError as exc:
@@ -94,8 +134,8 @@ def invoke(cmd, target, timeout):
         while not done:
             now = time.monotonic()
             if now - started >= timeout:
-                log(f"Timeout after {timeout}s; stopping OpenCode")
-                process.kill()
+                log(f"Timeout after {timeout}s; stopping OpenCode process tree")
+                terminate_process_tree(process)
                 timed_out = True
                 break
             try:
@@ -122,7 +162,7 @@ def invoke(cmd, target, timeout):
         try:
             process.wait(timeout=8)
         except subprocess.TimeoutExpired:
-            process.kill()
+            terminate_process_tree(process)
             process.wait()
         while not messages.empty():
             line = messages.get_nowait()
@@ -152,7 +192,7 @@ def sanitize_public_log(raw):
 
 
 def build_opencode_command(model, prompt):
-    return ["run", "--standalone", "--agent", "build",
+    return ["run", "--standalone", "--agent", "probe",
             "--format", "json", "--model", model, prompt]
 
 
@@ -187,15 +227,21 @@ def main():
     results = []
     for i, case in enumerate(cases, 1):
         log(f"[{i}/{len(cases)}] Running {case['id']}")
+        goal = case["goal"].replace("{fixture_readme}", str(FIXTURE / "README.md"))
+        goal = goal.replace("{solution}", solution)
         prompt = ("READ-ONLY research on a PUBLIC C# repo. Do not access other "
-                  "repos, credentials or configs. Never modify files. "
-                  f"Solution: {solution}. " + case["goal"].replace("{fixture_readme}", str(FIXTURE / "README.md")))
+                  "repos, credentials or configs. Never modify files. Complete the "
+                  "specific tool task without offering plans or follow-up choices. "
+                  "When a direct roslyn_* tool is requested, call it directly; never "
+                  "use execute, Code Mode, JavaScript, require(), or tools.opencode. "
+                  f"Exact solution path: {solution}. " + goal)
         command = build_opencode_command(args.model, prompt)
         start = time.monotonic()
         exe = shutil.which("opencode")
         if exe:
             raw, code, timeout, error = invoke([exe, *command],
-                                                local / (case["id"] + ".jsonl"), args.timeout)
+                                                local / (case["id"] + ".jsonl"), args.timeout,
+                                                cwd=FIXTURE)
         else:
             raw, code, timeout, error = "", None, False, "opencode_not_in_PATH"
             log("OpenCode missing from PATH")
@@ -204,20 +250,25 @@ def main():
         (public_logs / (case["id"] + ".log")).write_text(
             sanitize_public_log(raw), encoding="utf-8")
         metrics = parse_events(raw)
+        required_ok = required_tools_succeeded(case["id"], metrics)
         results.append({"case": case["id"], "model": args.model,
                         "duration_s": round(time.monotonic()-start, 2),
                         "exit_code": code, "timeout": timeout, "start_error": error,
                         "tool_invoked": metrics["tool_calls_total"] > 0,
-                        "roslyn_invoked": metrics["roslyn_calls"] > 0, **metrics})
+                        "roslyn_invoked": metrics["roslyn_calls"] > 0,
+                        "required_tools_succeeded": required_ok, **metrics})
         log(f"Finished {case['id']}: exit={code}, tools={metrics['tool_calls_total']}, "
-            f"roslyn={metrics['roslyn_calls']}, errors={metrics['error_events']}")
+            f"roslyn={metrics['roslyn_calls']}, required_ok={required_ok}, "
+            f"errors={metrics['error_events']}")
     report = {"schema_version": 2, "utc": stamp,
               "fixture": "ardalis/CleanArchitecture", "fixture_commit": revision,
-              "solution_name": Path(solution).name, "results": results}
+              "solution_name": Path(solution).name,
+              "opencode_cwd": "workspaces/CleanArchitecture", "results": results}
     path = published / f"{run_id}.json"
     path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     log(f"Summary: {path.relative_to(ROOT)}; public logs: {public_logs.relative_to(ROOT)}; full local log: {local.relative_to(ROOT)}")
-    return 0 if all(r["exit_code"] == 0 and not r["timeout"] for r in results) else 1
+    return 0 if all(r["exit_code"] == 0 and not r["timeout"] and
+                    r["required_tools_succeeded"] for r in results) else 1
 
 if __name__ == "__main__":
     sys.exit(main())

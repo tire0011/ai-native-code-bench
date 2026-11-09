@@ -52,12 +52,15 @@ class ThreeWayContextTests(unittest.TestCase):
         with TemporaryDirectory() as folder:
             root = Path(folder)
             (root / "results" / "runs").mkdir(parents=True)
+            aider_map = root / "map.txt"
+            aider_map.write_text("src/Core/Contributor.cs", encoding="utf-8")
             with patch.object(bench, "ROOT", root), \
                  patch.object(bench, "FIXTURE", root), \
                  patch.object(bench, "ground_truth", return_value=({"src/Core/Contributor.cs"}, set())), \
                  patch.object(bench, "extract_symbol_context", return_value=("snippet", 1, 1)), \
                  patch.object(bench, "generate", side_effect=TimeoutError("ollama stuck")) as generate:
-                result = bench.compare_three_way(root / "dummy.scip", timeout=0.01)
+                result = bench.compare_three_way(
+                    root / "dummy.scip", aider_map=aider_map, timeout=0.01)
             self.assertEqual(generate.call_count, 2)
             self.assertEqual(result["status"], "partial")
             self.assertEqual(sum(r["status"] == "error" for r in result["results"]), 2)

@@ -1,0 +1,535 @@
+{
+  "schema_version": 1,
+  "utc": "20261109T063510Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "tools": {
+    "aider": {
+      "installation": {
+        "ok": true,
+        "cached": true
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 22.47,
+        "error_category": null,
+        "diagnostic_hints": [],
+        "resources": {
+          "samples": 8,
+          "interval_seconds": 3,
+          "cpu_percent": {
+            "avg": 33.26,
+            "peak": 37.7
+          },
+          "ram_percent": {
+            "avg": 57.5,
+            "peak": 58
+          },
+          "ram_used_gb": {
+            "avg": 18.34,
+            "peak": 18.52
+          },
+          "gpu_percent": {
+            "avg": 4.75,
+            "peak": 11.0
+          },
+          "gpu_memory_mb": {
+            "avg": 397.5,
+            "peak": 399.0
+          }
+        },
+        "characters": 9337,
+        "nonempty_lines": 305
+      }
+    },
+    "scip": {
+      "installation": {
+        "ok": true,
+        "cached": true
+      },
+      "generation": {
+        "ok": true,
+        "exit_code": 0,
+        "duration_s": 48.59,
+        "error_category": null,
+        "diagnostic_hints": [],
+        "resources": {
+          "samples": 16,
+          "interval_seconds": 3,
+          "cpu_percent": {
+            "avg": 28.52,
+            "peak": 41.4
+          },
+          "ram_percent": {
+            "avg": 57.75,
+            "peak": 59
+          },
+          "ram_used_gb": {
+            "avg": 18.43,
+            "peak": 18.7
+          },
+          "gpu_percent": {
+            "avg": 0.94,
+            "peak": 4.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "index_created": true,
+        "index_bytes": 446292
+      }
+    }
+  },
+  "comparison": {
+    "schema_version": 1,
+    "utc": "20261109T063621Z",
+    "fixture": "ardalis/CleanArchitecture",
+    "model": "qwen2.5-coder:7b",
+    "tasks": [
+      "Contributor",
+      "ContributorStatus"
+    ],
+    "arms": [
+      "no_context",
+      "aider_map",
+      "scip"
+    ],
+    "seeds": [
+      42,
+      43
+    ],
+    "options": {
+      "temperature": 0,
+      "num_ctx": 8192,
+      "num_predict": 512
+    },
+    "context_limit_chars": 8000,
+    "aider_map_available": true,
+    "results": [
+      {
+        "target": "Contributor",
+        "seed": 42,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 59,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.29,
+            "peak": 18.29
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.24
+      },
+      {
+        "target": "Contributor",
+        "seed": 42,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 59,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.27,
+            "peak": 18.27
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.05
+      },
+      {
+        "target": "Contributor",
+        "seed": 42,
+        "arm": "scip",
+        "context_chars": 7761,
+        "scip_matches": 59,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.25,
+            "peak": 18.25
+          },
+          "gpu_percent": {
+            "avg": 4.0,
+            "peak": 4.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.06
+      },
+      {
+        "target": "Contributor",
+        "seed": 43,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 59,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.25,
+            "peak": 18.25
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.06
+      },
+      {
+        "target": "Contributor",
+        "seed": 43,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 59,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.23,
+            "peak": 18.23
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.06
+      },
+      {
+        "target": "Contributor",
+        "seed": 43,
+        "arm": "scip",
+        "context_chars": 7761,
+        "scip_matches": 59,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.24,
+            "peak": 18.24
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.06
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 42,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 12,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.25,
+            "peak": 18.25
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.05
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 42,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 12,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.23,
+            "peak": 18.23
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.08
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 42,
+        "arm": "scip",
+        "context_chars": 7429,
+        "scip_matches": 12,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.25,
+            "peak": 18.25
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.04
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 43,
+        "arm": "no_context",
+        "context_chars": 0,
+        "scip_matches": 12,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.25,
+            "peak": 18.25
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.08
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 43,
+        "arm": "aider_map",
+        "context_chars": 8000,
+        "scip_matches": 12,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.24,
+            "peak": 18.24
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.07
+      },
+      {
+        "target": "ContributorStatus",
+        "seed": 43,
+        "arm": "scip",
+        "context_chars": 7429,
+        "scip_matches": 12,
+        "resources": {
+          "samples": 1,
+          "interval_seconds": 3,
+          "cpu_percent": null,
+          "ram_percent": {
+            "avg": 57,
+            "peak": 57
+          },
+          "ram_used_gb": {
+            "avg": 18.23,
+            "peak": 18.23
+          },
+          "gpu_percent": {
+            "avg": 0.0,
+            "peak": 0.0
+          },
+          "gpu_memory_mb": {
+            "avg": 399.0,
+            "peak": 399.0
+          }
+        },
+        "ollama_diagnostics": {
+          "log_files_copied": 6,
+          "logs_local_only": true
+        },
+        "status": "error",
+        "error_type": "URLError",
+        "duration_s": 2.06
+      }
+    ],
+    "status": "partial"
+  }
+}

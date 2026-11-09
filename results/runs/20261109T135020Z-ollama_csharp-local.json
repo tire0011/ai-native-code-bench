@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "utc": "20261109T135020Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "solution_name": "Clean.Architecture.slnx",
+  "opencode_cwd": "workspaces/CleanArchitecture",
+  "results": [
+    {
+      "case": "load",
+      "model": "ollama/csharp-local",
+      "duration_s": 113.22,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "required_tools_succeeded": false,
+      "events": 6,
+      "tool_calls": {
+        "execute": 1
+      },
+      "tool_calls_total": 1,
+      "successful_tool_calls": {
+        "execute": 1
+      },
+      "successful_roslyn_calls": 0,
+      "failed_tool_calls": {},
+      "roslyn_calls": 0,
+      "error_events": 0
+    }
+  ]
+}

@@ -4,7 +4,29 @@
 
 This repository is an **experimental benchmark and automation harness**, not a production coding agent or a new foundation model. It compares alternative ways of understanding a C# codebase while keeping inference local, reproducible and measurable.
 
-> **For AI assistants opening this repository:** Read this README, then [Issue #2](https://github.com/tire0011/ai-native-code-bench/issues/2), before proposing changes. **Do not assume that successful process exit means a tool was called or that an answer is correct.** Prefer fixing the current experiment and analyzing existing results over introducing another agent framework.
+> **For AI assistants opening this repository:** Start with [HANDOFF.md](HANDOFF.md), then `AGENTS.md` and the chronology in `RESEARCH.md`. Also read [Issue #2](https://github.com/tire0011/ai-native-code-bench/issues/2) for the older public experiment record. **Do not assume that successful process exit means a tool was called or that an answer is correct.** Prefer fixing the current experiment and analyzing existing results over introducing another agent framework.
+
+## Practical local C# assistant
+
+The repository now also has an opt-in **local OpenCode launcher**, separate from the benchmark watcher and result upload. It targets an RTX-class 8 GiB GPU with 32 GiB system RAM and defaults to `qwen3:8b`; measurements, not the model label, decide whether that remains the default.
+
+```powershell
+# Once, if not already installed (about 5.2 GB):
+ollama pull qwen3:8b
+
+# Prepare the model/profile and validate the local OpenCode path without opening the UI:
+.\local.ps1 -SetupOnly -SmokeTest
+
+# Work on the ignored public C# fixture with the interactive local assistant:
+.\local.ps1
+
+# Test deterministic Roslyn orchestration WITHOUT any LLM:
+node deterministic_orchestration.mjs
+```
+
+The launcher creates a `csharp-local` Ollama alias, constrains inference to the loopback Ollama provider, configures Roslyn MCP and bounded context/output, and generates `.opencode/opencode.jsonc` in the target project. It refuses to overwrite an existing non-generated config. See [assistant/README.md](assistant/README.md) for other public workspaces, already-installed alternative models, GPU placement checks, and limitations. It does **not** run the watcher, commit results, or upload the target code.
+
+**Current limitation:** Qwen3 has not completed a reliable autonomous tool workflow or a large code change. Use the read-only `probe` benchmark and real build/test evidence rather than treating a successful `LOCAL_OK` smoke test as coding capability. By contrast, the no-model deterministic controller has successfully loaded all nine fixture projects and returned `Contributor` definition/reference evidence plus a correct missing-symbol result. That proves deterministic navigation, not autonomous editing. See the latest diagnosis and deterministic result in [RESEARCH.md](RESEARCH.md#2026-11-09-deterministic-controller-succeeds).
 
 ## 1. Research question and hypothesis
 
@@ -59,7 +81,7 @@ All experiments target the public repository **[ardalis/CleanArchitecture](https
 
 ## 4. Run on Windows (PowerShell only)
 
-Prerequisites: Git, Python, .NET SDK, OpenCode v2, Ollama with `qwen2.5-coder:7b` downloaded and available. Aider, uv and scip-dotnet are installed **by the project scripts** in ignored `.tools/` directories as needed; no global installation of those dependencies is intended.
+Prerequisites: Git, Python, .NET SDK, OpenCode v2, Node.js 18+ with npm, and Ollama with `qwen2.5-coder:7b` downloaded and available. Run `npm ci` if `node_modules/` is missing; it installs the pinned project-local MCP SDK and existing development dependencies. Aider, uv and scip-dotnet are installed **by the project scripts** in ignored `.tools/` directories as needed; no global installation of those dependencies is intended. The practical local assistant defaults to `qwen3:8b` instead, which `local.ps1` checks and asks you to pull explicitly if missing.
 
 ```powershell
 git clone https://github.com/tire0011/ai-native-code-bench.git

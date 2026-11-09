@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "utc": "20261109T154631Z",
+  "method": "fixed_serial_controller_no_model",
+  "model_used": false,
+  "solution_name": "Clean.Architecture.slnx",
+  "symbols": [
+    "Contributor",
+    "BaseEntity"
+  ],
+  "status": "complete",
+  "calls": [
+    {
+      "tool": "load_solution",
+      "arguments": {
+        "path": "<solution>",
+        "background": false
+      },
+      "ok": true,
+      "duration_ms": 16440
+    },
+    {
+      "tool": "go_to_definition",
+      "arguments": {
+        "symbol": "Contributor",
+        "limit": 50
+      },
+      "ok": true,
+      "duration_ms": 12
+    },
+    {
+      "tool": "find_references",
+      "arguments": {
+        "symbol": "Contributor",
+        "limit": 50
+      },
+      "ok": true,
+      "duration_ms": 714
+    },
+    {
+      "tool": "go_to_definition",
+      "arguments": {
+        "symbol": "BaseEntity",
+        "limit": 50
+      },
+      "ok": true,
+      "duration_ms": 4
+    },
+    {
+      "tool": "find_references",
+      "arguments": {
+        "symbol": "BaseEntity",
+        "limit": 50
+      },
+      "ok": true,
+      "duration_ms": 2
+    }
+  ],
+  "results": [
+    {
+      "symbol": "Contributor",
+      "status": "found",
+      "definition_count": 1,
+      "reference_count": 37,
+      "definition_paths": [
+        "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs"
+      ],
+      "reference_paths": [
+        "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+        "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+        "src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs",
+        "src/Clean.Architecture.Core/ContributorAggregate/Events/ContributorNameUpdatedEvent.cs",
+        "src/Clean.Architecture.Core/ContributorAggregate/Events/ContributorNameUpdatedEvent.cs",
+        "src/Clean.Architecture.Core/ContributorAggregate/Specifications/ContributorByIdSpec.cs",
+        "src/Clean.Architecture.Core/Services/DeleteContributorService.cs",
+        "src/Clean.Architecture.Core/Services/DeleteContributorService.cs",
+        "src/Clean.Architecture.Infrastructure/Data/AppDbContext.cs",
+        "src/Clean.Architecture.Infrastructure/Data/AppDbContext.cs",
+        "src/Clean.Architecture.Infrastructure/Data/Config/ContributorConfiguration.cs",
+        "src/Clean.Architecture.Infrastructure/Data/Config/ContributorConfiguration.cs",
+        "src/Clean.Architecture.UseCases/Contributors/Create/CreateContributorHandler.cs",
+        "src/Clean.Architecture.UseCases/Contributors/Create/CreateContributorHandler.cs",
+        "src/Clean.Architecture.UseCases/Contributors/Get/GetContributorHandler.cs",
+        "src/Clean.Architecture.UseCases/Contributors/Update/UpdateContributorHandler.cs",
+        "src/Clean.Architecture.Web/Configurations/MediatorConfig.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/BaseEfRepoTestFixture.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/BaseEfRepoTestFixture.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/EfRepositoryAdd.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/EfRepositoryAdd.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/EfRepositoryAdd.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/EfRepositoryDelete.cs",
+        "tests/Clean.Architecture.IntegrationTests/Data/EfRepositoryUpdate.cs",
+        "tests/Clean.Architecture.UnitTests/Core/ContributorAggregate/ContributorConstructor.cs",
+        "tests/Clean.Architecture.UnitTests/Core/ContributorAggregate/ContributorConstructor.cs",
+        "tests/Clean.Architecture.UnitTests/Core/ContributorAggregate/ContributorConstructor.cs",
+        "tests/Clean.Architecture.UnitTests/Core/ContributorAggregate/ContributorUpdateName.cs",
+        "tests/Clean.Architecture.UnitTests/Core/ContributorAggregate/ContributorUpdateName.cs",
+        "tests/Clean.Architecture.UnitTests/Core/ContributorAggregate/ContributorUpdateName.cs",
+        "tests/Clean.Architecture.UnitTests/Core/Services/DeleteContributorSevice_DeleteContributor.cs",
+        "tests/Clean.Architecture.UnitTests/Core/Services/DeleteContributorSevice_DeleteContributor.cs",
+        "tests/Clean.Architecture.UnitTests/UseCases/Contributors/CreateContributorHandlerHandle.cs",
+        "tests/Clean.Architecture.UnitTests/UseCases/Contributors/CreateContributorHandlerHandle.cs",
+        "tests/Clean.Architecture.UnitTests/UseCases/Contributors/CreateContributorHandlerHandle.cs",
+        "tests/Clean.Architecture.UnitTests/UseCases/Contributors/CreateContributorHandlerHandle.cs",
+        "tests/Clean.Architecture.UnitTests/UseCases/Contributors/CreateContributorHandlerHandle.cs"
+      ]
+    },
+    {
+      "symbol": "BaseEntity",
+      "status": "not_found",
+      "definition_count": 0,
+      "reference_count": 0,
+      "definition_paths": [],
+      "reference_paths": []
+    }
+  ],
+  "available_tool_count": 67,
+  "server": {
+    "name": "RoslynCodeLens",
+    "version": "2.18.2.0"
+  },
+  "duration_ms": 23898
+}

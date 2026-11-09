@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "utc": "20261109T132334Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "solution_name": "Clean.Architecture.slnx",
+  "opencode_cwd": "workspaces/CleanArchitecture",
+  "results": [
+    {
+      "case": "builtin-read",
+      "model": "ollama/csharp-local",
+      "duration_s": 135.28,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "events": 9,
+      "tool_calls": {
+        "read": 1,
+        "shell": 1
+      },
+      "tool_calls_total": 2,
+      "roslyn_calls": 0,
+      "error_events": 0
+    },
+    {
+      "case": "load",
+      "model": "ollama/csharp-local",
+      "duration_s": 107.81,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": true,
+      "events": 12,
+      "tool_calls": {
+        "read": 1,
+        "shell": 1,
+        "roslyn_load_solution": 1
+      },
+      "tool_calls_total": 3,
+      "roslyn_calls": 1,
+      "error_events": 0
+    },
+    {
+      "case": "find-symbol",
+      "model": "ollama/csharp-local",
+      "duration_s": 226.01,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": true,
+      "events": 9,
+      "tool_calls": {
+        "glob": 1,
+        "roslyn_list_solutions": 1
+      },
+      "tool_calls_total": 2,
+      "roslyn_calls": 1,
+      "error_events": 0
+    },
+    {
+      "case": "find-references",
+      "model": "ollama/csharp-local",
+      "duration_s": 58.95,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "events": 6,
+      "tool_calls": {
+        "read": 1
+      },
+      "tool_calls_total": 1,
+      "roslyn_calls": 0,
+      "error_events": 0
+    }
+  ]
+}

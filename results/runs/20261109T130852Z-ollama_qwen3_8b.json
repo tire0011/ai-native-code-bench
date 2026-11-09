@@ -1,0 +1,78 @@
+{
+  "schema_version": 2,
+  "utc": "20261109T130852Z",
+  "fixture": "ardalis/CleanArchitecture",
+  "fixture_commit": "da5491f1641f3d388e6cfc2c0ddd29f763746762",
+  "solution_name": "Clean.Architecture.slnx",
+  "results": [
+    {
+      "case": "builtin-read",
+      "model": "ollama/qwen3:8b",
+      "duration_s": 125.92,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "events": 6,
+      "tool_calls": {
+        "read": 1
+      },
+      "tool_calls_total": 1,
+      "roslyn_calls": 0,
+      "error_events": 0
+    },
+    {
+      "case": "load",
+      "model": "ollama/qwen3:8b",
+      "duration_s": 135.07,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "events": 6,
+      "tool_calls": {
+        "subagent": 1
+      },
+      "tool_calls_total": 1,
+      "roslyn_calls": 0,
+      "error_events": 0
+    },
+    {
+      "case": "find-symbol",
+      "model": "ollama/qwen3:8b",
+      "duration_s": 83.06,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "events": 7,
+      "tool_calls": {
+        "subagent": 1,
+        "read": 1
+      },
+      "tool_calls_total": 2,
+      "roslyn_calls": 0,
+      "error_events": 0
+    },
+    {
+      "case": "find-references",
+      "model": "ollama/qwen3:8b",
+      "duration_s": 221.17,
+      "exit_code": 0,
+      "timeout": false,
+      "start_error": null,
+      "tool_invoked": true,
+      "roslyn_invoked": false,
+      "events": 6,
+      "tool_calls": {
+        "subagent": 1
+      },
+      "tool_calls_total": 1,
+      "roslyn_calls": 0,
+      "error_events": 0
+    }
+  ]
+}

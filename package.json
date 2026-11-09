@@ -1,0 +1,16 @@
+{
+  "name": "ai-native-code-bench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test:mcp": "node --test tests/deterministic_orchestration.test.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "edict-lang": "1.23.2"
+  }
+}

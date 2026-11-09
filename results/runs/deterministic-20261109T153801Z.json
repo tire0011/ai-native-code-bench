@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "utc": "20261109T153801Z",
+  "method": "fixed_serial_controller_no_model",
+  "model_used": false,
+  "solution_name": "Clean.Architecture.slnx",
+  "symbols": [
+    "Contributor",
+    "BaseEntity"
+  ],
+  "status": "error",
+  "calls": [],
+  "results": [],
+  "available_tool_count": 67,
+  "server": {
+    "name": "RoslynCodeLens",
+    "version": "2.18.2.0"
+  },
+  "error": {
+    "type": "ToolCallError",
+    "tool": "load_solution",
+    "message": "load_solution: result was neither structured content nor a JSON object"
+  },
+  "duration_ms": 25690
+}

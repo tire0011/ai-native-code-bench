@@ -65,3 +65,44 @@ Success criterion currently requires real tests passing (at least 24) and at lea
 - Endpoint-propagation and GetById-mapper checks were added to the evaluator; success now requires at least 27 passing tests plus >=7 changed production files. These requirements supplement the initial 24 checks; earlier rounds did not pass even the compiler stage.
 
 Execution intervention: background chat summarization was running after the main answer had already applied edits, using further local model calls and delaying validation. For subsequent one-turn calls, all three isolated checkouts set max-chat-history-tokens=100000 in .aider.conf.yml. The baseline cycle17 client was stopped after its main edits; driver still validates retained code and records the nonzero editor exit. See execution-interventions.jsonl.
+
+## 2026-11-09: practical OpenCode local profile and direct Roslyn diagnosis
+
+A reusable `local.ps1` launcher now prepares a `csharp-local` Ollama alias and a generated OpenCode profile for a C# project without starting the watcher or uploading results. Qwen3:8b (5.2 GB download) was added as a tool-capable comparison model; its weights are shared with the alias rather than duplicated. The default alias uses temperature 0.1, num_ctx 8192 and num_predict 4096. On this machine it preloaded at 6.2 GB, **100% GPU**, and the OpenCode smoke run returned exactly `LOCAL_OK`. This verifies the infrastructure path only.
+
+First raw Qwen3 run (`results/runs/20261109T130852Z-ollama_qwen3_8b.json`): one real built-in read occurred (a change from the old Qwen2.5-Coder baseline), but all three Roslyn cases delegated instead of making direct Roslyn calls. Model/global instructions/subagent behavior prevent treating delegating tool events as completion of the requested task.
+
+First direct-profile run (`results/runs/20261109T132334Z-ollama_csharp-local.json`): the target config ran from the C# fixture with `codemode=false`, unrelated Azure MCP disabled and subagents denied. Real `roslyn_load_solution` and `roslyn_list_solutions` tools appeared. However, the load case guessed `Clean.Architecture.sln` instead of using the supplied `.slnx`, and that tool returned an error. The symbol case stopped after listing the already-loaded solution; references were not requested. No successful autonomous definition/reference result is claimed.
+
+The runner was subsequently tightened to record successful and failed tool names separately and to require each case's exact successful tool (`read`, `roslyn_load_solution`, `roslyn_go_to_definition`, or `roslyn_find_references`). Tool-state errors now count as errors even when a top-level error event is absent. OpenCode runs from `workspaces/CleanArchitecture` so the generated project profile applies. Case prompts now name the exact supplied solution path and required tools.
+
+This narrows the current bottleneck to observable model/tool behavior. It is not yet evidence that the local assistant can autonomously complete a large C# feature. Use `assistant/MODELS.md` for hardware tradeoffs and the unit/integration checks in `AGENTS.md` before accepting further changes.
+
+### Follow-up: unsafe loop corrected, autonomous reliability still unproven
+
+- A 15-tool allowlist replaced the full 67-tool execution surface, but this did **not** materially reduce the smoke prompt's reported token size; it is retained as a core-tool/safety boundary, not proven token optimization. A direct-call attempt using JavaScript `require` failed with `ReferenceError` in `results/runs/20261109T135020Z-ollama_csharp-local.json`. The runner now detects nested `execute` metadata errors as well as tool-state errors.
+- Explicit Qwen3 medium `reasoning_effort` was tested. In `results/runs/20261109T140214Z-ollama_csharp-local.json`, `roslyn_load_solution` finally succeeded with the correct full `.slnx` path, but the same run invoked unrelated shell commands, including an invalid `dotnet workload install csharp` attempt, ignored the no-shell instruction and timed out after 300 seconds. `required_tools_succeeded=true` for that one call does not mean the case passed. `dotnet workload list` confirmed no workload was installed. The unproven reasoning override was removed from the final profile.
+- Timeout handling originally killed only the parent CLI and left an OpenCode child alive. It now uses `taskkill /PID <pid> /T /F` on Windows with a regression test; the observed orphan tree was terminated.
+- The benchmark now uses a custom `probe` agent with an eight-step limit and hard denials for edits, shell, execute, subagents and web tools. Symlink-independent generated state remains local; the unrelated pre-existing Aider `.gitignore` modification is not part of these changes.
+- A final synchronous-load probe (`results/runs/20261109T141917Z-ollama_csharp-local.json`) completed with no tool calls, no text response, `required_tools_succeeded=false` and runner exit 1. No orphan process remained. This is a safe failure, but not a successful agent run.
+
+**Conclusion:** local inference, OpenCode discovery, the generated profile, Roslyn connectivity and direct tool possibility are now demonstrated. Reliable autonomous definition/reference navigation and large code changes are still not demonstrated. Do not claim that the launcher solves C# autonomy. The next useful experiment must be justified from these artifacts—potentially deterministic orchestration around a smaller tool-decision surface—rather than another unbounded sequence of prompt tweaks or an assumption that a 14B model will fix orchestration.
+
+## 2026-11-09: deterministic controller succeeds
+
+`deterministic_orchestration.mjs` bypasses the model and OpenCode agent loop completely. It uses the official `@modelcontextprotocol/sdk` 1.32.2 client to call an allowlisted fixed serial plan: `load_solution` once, then `go_to_definition` and `find_references` for each exact symbol. A failure stops the plan immediately; no shell command, model inference, tool guessing or unrelated installation can be selected by an LLM.
+
+The real integration run is `results/runs/deterministic-20261109T154631Z.json`:
+
+- status `complete`, `model_used=false`, RoslynCodeLens 2.18.2, 67 tools discovered but only the required three called.
+- All nine fixture projects loaded synchronously in 16.44 seconds.
+- `Contributor`: definition call succeeded (`totalCount=1`) at `src/Clean.Architecture.Core/ContributorAggregate/Contributor.cs`; reference call returned 37 occurrences (not 37 unique files).
+- `BaseEntity`: both real calls succeeded and returned zero results, correctly represented as `not_found`, not fabricated or treated as an exception.
+- Five calls completed in 23.898 seconds overall. The runner-owned MCP process tree stopped; the older independent OpenCode service remained untouched.
+- Raw MCP responses are local only in `local-results/deterministic-20261109T154631Z/`; public report contains bounded, sanitized repository-relative paths (per occurrence, so duplicates are expected).
+
+The first attempt failed in the controller because `load_solution` returns plain text (`Loaded 9 project(s)...`) while definition/reference tools return text-encoded JSON envelopes. The decoder now accepts both and preserves raw failed calls. Explicit Windows process-tree cleanup was added and exercised with an injected fake process killer; no real process is used in the unit test.
+
+Eight offline Node tests cover fixed order, serial execution, found/missing symbols, immediate stop on tool errors, SDK failures, scalar/structured decoding, bounded paths, external-path redaction, cleanup targeting and invalid symbol syntax. `run.ps1` runs these in addition to the existing Python regression suite.
+
+Interpretation: **deterministic orchestration solves this particular definition/reference tool-selection workflow without any model.** It does not yet establish autonomous code-edit correctness, build/test repair, safe generalized planning or end-to-end C# feature delivery. The next justified experiment is to pass this verified evidence into a bounded model summarization/edit step and independently validate that output; deterministic MCP results remain the source of truth regardless of model prose.

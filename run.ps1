@@ -10,6 +10,8 @@ Set-Location $PSScriptRoot
 Write-Host "[$(Get-Date -Format HH:mm:ss)] Benchmark model: $Model"
 python -m unittest discover -s tests -v
 if ($LASTEXITCODE -ne 0) { throw 'Runner unit tests failed' }
+node --test tests/deterministic_orchestration.test.mjs
+if ($LASTEXITCODE -ne 0) { throw 'Deterministic MCP controller tests failed' }
 
 python -u runner.py --model $Model --cases $Cases --timeout $TimeoutSeconds
 $runExit = $LASTEXITCODE

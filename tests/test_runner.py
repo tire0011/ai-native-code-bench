@@ -1,6 +1,8 @@
 import json
 import unittest
-from runner import parse_events, tool_name, build_opencode_command
+from types import SimpleNamespace
+from runner import (parse_events, tool_name, build_opencode_command,
+                    required_tools_succeeded, terminate_process_tree)
 
 class RunnerTests(unittest.TestCase):
     def test_real_tool(self):
@@ -10,6 +12,47 @@ class RunnerTests(unittest.TestCase):
         ])
         self.assertEqual(parse_events(raw)['roslyn_calls'], 1)
         self.assertEqual(parse_events(raw)['tool_calls_total'], 1)
+
+    def test_tool_error_state_is_not_a_successful_roslyn_call(self):
+        raw = json.dumps({
+            'type': 'tool_use',
+            'part': {'tool': 'roslyn_load_solution',
+                     'state': {'status': 'error', 'error': 'file not found'}}
+        })
+        metrics = parse_events(raw)
+        self.assertEqual(metrics['tool_calls_total'], 1)
+        self.assertEqual(metrics['roslyn_calls'], 1)
+        self.assertEqual(metrics['successful_roslyn_calls'], 0)
+        self.assertEqual(metrics['failed_tool_calls']['roslyn_load_solution'], 1)
+        self.assertEqual(metrics['error_events'], 1)
+        self.assertFalse(required_tools_succeeded('load', metrics))
+
+    def test_execute_metadata_error_counts_as_failure(self):
+        raw = json.dumps({
+            'type': 'tool_use',
+            'part': {'tool': 'execute',
+                     'state': {'status': 'completed',
+                               'metadata': {'metadata': {'error': True, 'toolCalls': []}}}}
+        })
+        metrics = parse_events(raw)
+        self.assertEqual(metrics['failed_tool_calls']['execute'], 1)
+        self.assertNotIn('execute', metrics['successful_tool_calls'])
+        self.assertEqual(metrics['error_events'], 1)
+
+    def test_case_requires_its_exact_successful_tool(self):
+        raw = json.dumps({
+            'type': 'tool_use',
+            'part': {'tool': 'roslyn_list_solutions',
+                     'state': {'status': 'completed'}}
+        })
+        metrics = parse_events(raw)
+        self.assertFalse(required_tools_succeeded('find-symbol', metrics))
+        raw += '\n' + json.dumps({
+            'type': 'tool_use',
+            'part': {'tool': 'roslyn_go_to_definition',
+                     'state': {'status': 'completed'}}
+        })
+        self.assertTrue(required_tools_succeeded('find-symbol', parse_events(raw)))
 
     def test_text_not_tool(self):
         self.assertEqual(parse_events(json.dumps({
@@ -25,9 +68,20 @@ class RunnerTests(unittest.TestCase):
     def test_opencode_v2_flags(self):
         cmd = build_opencode_command('ollama/qwen2.5-coder:7b', 'hello')
         self.assertEqual(cmd[:2], ['run', '--standalone'])
-        self.assertEqual(cmd[cmd.index('--agent') + 1], 'build')
+        self.assertEqual(cmd[cmd.index('--agent') + 1], 'probe')
         self.assertNotIn('--archived', cmd)
         self.assertEqual(cmd[-1], 'hello')
+
+    def test_windows_timeout_terminates_process_tree(self):
+        from unittest.mock import patch
+        process = SimpleNamespace(pid=123)
+        with patch("runner.os.name", "nt"), \
+                patch("runner.subprocess.run", return_value=SimpleNamespace(returncode=0)) as run:
+            terminate_process_tree(process)
+        args = run.call_args.args[0]
+        self.assertEqual(args[:3], ["taskkill", "/PID", "123"])
+        self.assertEqual(args[3:], ["/T", "/F"])
+        self.assertEqual(run.call_args.kwargs["timeout"], 10)
 
     def test_scip_protobuf_symbols(self):
         from pathlib import Path
@@ -93,7 +147,8 @@ class ContextProbeTests(unittest.TestCase):
         from context_probe import invoke_checked, ROOT
         supplied = {"EXPERIMENT": "test"}
         with patch("context_probe.subprocess.run", return_value=SimpleNamespace(
-                returncode=0, stdout="map", stderr="")) as run:
+                returncode=0, stdout="map", stderr="")) as run, \
+                patch("context_probe.ResourceMonitor"):
             status, output = invoke_checked(["aider"], ROOT, 10, "test", env=supplied)
         self.assertTrue(status["ok"])
         self.assertEqual(run.call_args.kwargs["env"]["PYTHONIOENCODING"], "utf-8")
