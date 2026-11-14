@@ -12,11 +12,11 @@ The generic poller is not another benchmark engine. It replaces only the **polli
 | `watch.ps1` checks fixed repo/branch and refuses unsafe code changes | Per-experiment configured remote/branch, clean tree, fast-forward only |
 | Relevant code changes trigger tests, `results/runs/` and `results/logs/` do not | `runOnChange: true` plus `ignorePaths` prefixes |
 | `watch.ps1` invokes `run.ps1 -NoWatch` | New `poller-run.ps1` invokes the **existing** `run.ps1 -NoWatch` |
-| `run.ps1` publishes benchmark results via `sync-results.ps1` | Unchanged, **explicitly benchmark-specific**; generic poller never publishes |
+| `run.ps1` publishes benchmark results via `sync-results.ps1` | Unchanged during the run; the poller can also reconcile pending result-only changes before the next poll via an adapted reusable sync helper |
 | `local-results/watcher.paused` prevents old watcher | Remains in effect for legacy watcher; new launcher uses its own `paused.flag` |
-| Results-only local commit rebase / dirty-result recovery | **Not extracted into the generic poller.** Its generic fast-forward guard refuses dirty workspaces; if benchmark publication fails, fix/reconcile results via existing `sync-results.ps1` before resuming. The benchmark retains ownership of results publishing |
+| Results-only local commit rebase / dirty-result recovery | Extracted into the generic poller's optional `sync-results.ps1` (parameterized repo, branch, `resultPaths`) with original commit/rebase/push guards; disabled for experiments with no `resultPaths` |
 
-**Important:** This split is not perfectly behavior-identical yet. The old watcher can reconcile pending results *before polling*, while the generic poller deliberately stops on a dirty checkout. Verify this difference is acceptable before retiring the old watcher; do not present a successful dummy test as full behavioral parity.
+**Important:** The prior results-only recovery gap is now implemented in the standalone poller. Its **offline integration test** covers result commit/push, result-only no-rerun, local result rebase after new remote code, and refusal to rebase local code commits. This does not yet prove live Windows benchmark behavior; keep the original watcher paused until the actual host test passes.
 
 ## Example profile
 
@@ -30,7 +30,8 @@ In the **poller's local config**, select:
   "entrypoint": "poller-run.ps1",
   "timeoutSeconds": 3600,
   "runOnChange": true,
-  "ignorePaths": ["results/runs/", "results/logs/"]
+  "ignorePaths": ["results/runs/", "results/logs/"],
+  "resultPaths": ["results/runs/", "results/logs/"]
 }
 ```
 
@@ -39,7 +40,7 @@ The adapter defaults to the benchmark's existing result publisher; for a local m
 ## Non-invasive validation
 
 1. Offline: `pwsh -NoProfile -File .\tests\Test-PollerAdapter.ps1` uses a **fake** `run.ps1`; no GPU, Ollama or results publishing.
-2. Standalone: run `git-repo-poller` synthetic tests on two local bare Git remotes; confirm only relevant changes rerun and dirty workspaces are preserved.
+2. Standalone: run `git-repo-poller` `tests/Smoke.Tests.ps1` and `tests/ResultSync.Tests.ps1` on local bare Git remotes; confirm update routing, results-only commit/push/rebase, no false reruns, and preservation of local code commits.
 3. Inspect current local benchmark results before enabling anything. Keep the original benchmark watcher **paused**; disable any old Task Scheduler job, but do not delete its scripts or pause marker.
 4. On a trusted Windows host only after review, configure the new poller, initially **without Task Scheduler**. Read-only configuration check first; then authorize a one-shot benchmark run and verify local result publishing.
 5. Test a results-only remote commit, a failed result upload, an offline fetch and a new code commit. Check that exactly one run occurs and that output stays out of public Git except the explicitly intended benchmark metrics.
